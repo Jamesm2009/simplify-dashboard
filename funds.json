@@ -1,0 +1,36 @@
+[
+  {
+    "symbol": "SBAR",
+    "name": "Simplify Barrier Income ETF",
+    "category": "equity-income",
+    "type": "Barrier Income ETF",
+    "exp_ratio": 0.75
+  },
+  {
+    "symbol": "CTA",
+    "name": "Simplify Managed Futures Strategy ETF",
+    "category": "alternative",
+    "type": "Managed Futures Strategy ETF",
+    "exp_ratio": 0.75
+  },
+  {
+    "symbol": "AGGH",
+    "name": "Simplify Aggregate Bond ETF",
+    "category": "fixed-income",
+    "type": "Aggregate Bond ETF",
+    "exp_ratio": 0.55
+  },
+  {
+    "symbol": "FOXY",
+    "name": "Simplify Currency Strategy ETF",
+    "category": "alternative",
+    "type": "Currency Strategy ETF",
+    "exp_ratio": 0.81
+  },
+  {
+    "symbol": "XV",
+    "name": "Simplify Target 15 Distribution ETF",
+    "category": "equity-income",
+    "type": "Target 15 Distribution ETF",
+    "exp_ratio": 0.75
+  },
