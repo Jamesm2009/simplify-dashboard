@@ -5,7 +5,7 @@
     "category": "equity-income",
     "type": "Barrier Income ETF",
     "exp_ratio": 0.75,
-    "ttm_yield": 5.63%
+    "ttm_yield": 5.63
   },
   {
     "symbol": "CTA",
@@ -13,7 +13,7 @@
     "category": "alternative",
     "type": "Managed Futures Strategy ETF",
     "exp_ratio": 0.75,
-    "ttm_yield": 5.39%
+    "ttm_yield": 5.39
   },
   {
     "symbol": "AGGH",
@@ -21,7 +21,7 @@
     "category": "fixed-income",
     "type": "Aggregate Bond ETF",
     "exp_ratio": 0.55,
-    "ttm_yield": 7.60%
+    "ttm_yield": 7.60
   },
   {
     "symbol": "FOXY",
@@ -29,7 +29,7 @@
     "category": "alternative",
     "type": "Currency Strategy ETF",
     "exp_ratio": 0.81,
-    "ttm_yield": 8.79%
+    "ttm_yield": 8.79
   },
   {
     "symbol": "XV",
@@ -37,7 +37,7 @@
     "category": "equity-income",
     "type": "Target 15 Distribution ETF",
     "exp_ratio": 0.75,
-    "ttm_yield": 4.16%
+    "ttm_yield": 4.16
   },
   {
     "symbol": "HEQT",
@@ -45,7 +45,7 @@
     "category": "equity",
     "type": "Hedged Equity ETF",
     "exp_ratio": 0.53,
-    "ttm_yield": 1.19%
+    "ttm_yield": 1.19
   },
   {
     "symbol": "SBIL",
@@ -53,7 +53,7 @@
     "category": "fixed-income",
     "type": "Government Money Market ETF",
     "exp_ratio": 0.15,
-    "ttm_yield": 3.87%
+    "ttm_yield": 3.87
   },
   {
     "symbol": "MTBA",
@@ -61,7 +61,7 @@
     "category": "fixed-income",
     "type": "MBS ETF",
     "exp_ratio": 0.25,
-    "ttm_yield": 5.54%
+    "ttm_yield": 5.54
   },
   {
     "symbol": "TUA",
@@ -69,7 +69,7 @@
     "category": "fixed-income",
     "type": "Short Term Treasury Futures Strategy ETF",
     "exp_ratio": 0.25,
-    "ttm_yield": 3.12%
+    "ttm_yield": 3.12
   },
   {
     "symbol": "SVOL",
@@ -77,7 +77,7 @@
     "category": "alternative",
     "type": "Volatility Premium ETF",
     "exp_ratio": 0.66,
-    "ttm_yield": 13.29%
+    "ttm_yield": 13.29
   },
   {
     "symbol": "BUCK",
@@ -85,7 +85,7 @@
     "category": "fixed-income",
     "type": "Treasury Option Income ETF",
     "exp_ratio": 0.35,
-    "ttm_yield": 7.21%
+    "ttm_yield": 7.21
   },
   {
     "symbol": "PINK",
@@ -93,7 +93,7 @@
     "category": "equity",
     "type": "Health Care ETF",
     "exp_ratio": 0.51,
-    "ttm_yield": 0.64%
+    "ttm_yield": 0.64
   },
   {
     "symbol": "CDX",
@@ -109,7 +109,7 @@
     "category": "equity-income",
     "type": "US Equity Income ETF",
     "exp_ratio": 0.53,
-    "ttm_yield": 8.31%
+    "ttm_yield": 8.31
   },
   {
     "symbol": "PFIX",
@@ -117,7 +117,7 @@
     "category": "alternative",
     "type": "Interest Rate Hedge ETF",
     "exp_ratio": 0.5,
-    "ttm_yield": 3.11%
+    "ttm_yield": 3.11
   },
   {
     "symbol": "KNRG",
@@ -125,7 +125,7 @@
     "category": "fixed-income",
     "type": "Kayne Anderson Energy and Infrastructure Credit ETF",
     "exp_ratio": 0.76,
-    "ttm_yield": 6.93%
+    "ttm_yield": 6.93
   },
   {
     "symbol": "CTAP",
@@ -141,7 +141,7 @@
     "category": "equity",
     "type": "US Equity PLUS Convexity ETF",
     "exp_ratio": 0.53,
-    "ttm_yield": 0.89%
+    "ttm_yield": 0.89
   },
   {
     "symbol": "SPD",
@@ -149,7 +149,7 @@
     "category": "equity",
     "type": "US Equity PLUS Downside Convexity ETF",
     "exp_ratio": 0.53,
-    "ttm_yield": 0.97%
+    "ttm_yield": 0.97
   },
   {
     "symbol": "CCOM",
@@ -165,7 +165,7 @@
     "category": "alternative",
     "type": "Commodities Strategy No K-1 ETF",
     "exp_ratio": 0.78,
-    "ttm_yield": 3.70%
+    "ttm_yield": 3.70
   },
   {
     "symbol": "SURI",
@@ -173,7 +173,7 @@
     "category": "equity",
     "type": "Propel Opportunities ETF",
     "exp_ratio": 2.82,
-    "ttm_yield": 15.01%
+    "ttm_yield": 15.01
   },
   {
     "symbol": "HIGH",
@@ -181,7 +181,7 @@
     "category": "equity-income",
     "type": "Enhanced Income ETF",
     "exp_ratio": 0.5,
-    "ttm_yield": 6.87%
+    "ttm_yield": 6.87
   },
   {
     "symbol": "TYA",
@@ -189,7 +189,7 @@
     "category": "fixed-income",
     "type": "Intermediate Term Treasury Futures Strategy ETF",
     "exp_ratio": 0.25,
-    "ttm_yield": 3.79%
+    "ttm_yield": 3.79
   },
   {
     "symbol": "XXV",
@@ -205,7 +205,7 @@
     "category": "fixed-income",
     "type": "National Muni Bond ETF",
     "exp_ratio": 0.52,
-    "ttm_yield": 5.53%
+    "ttm_yield": 5.53
   },
   {
     "symbol": "RFIX",
@@ -213,7 +213,7 @@
     "category": "fixed-income",
     "type": "Bond Bull ETF",
     "exp_ratio": 0.5,
-    "ttm_yield": 4.38%
+    "ttm_yield": 4.38
   },
   {
     "symbol": "SPBC",
@@ -221,7 +221,7 @@
     "category": "equity",
     "type": "US Equity PLUS Bitcoin Strategy ETF",
     "exp_ratio": 0.54,
-    "ttm_yield": 0.84%
+    "ttm_yield": 0.84
   },
   {
     "symbol": "GAEM",
@@ -229,7 +229,7 @@
     "category": "fixed-income",
     "type": "Gamma Emerging Market Bond ETF",
     "exp_ratio": 0.96,
-    "ttm_yield": 6.38%
+    "ttm_yield": 6.38
   },
   {
     "symbol": "NXTI",
@@ -237,7 +237,7 @@
     "category": "equity",
     "type": "NEXT Intangible Core Index ETF",
     "exp_ratio": 0.25,
-    "ttm_yield": 0.56%
+    "ttm_yield": 0.56
   },
   {
     "symbol": "SDMF",
@@ -261,7 +261,7 @@
     "category": "alternative",
     "type": "Multi-QIS Alternative ETF",
     "exp_ratio": 1.21,
-    "ttm_yield": 2.01%
+    "ttm_yield": 2.01
   },
   {
     "symbol": "YGLD",
@@ -269,7 +269,7 @@
     "category": "alternative",
     "type": "Gold Strategy ETF",
     "exp_ratio": 0.53,
-    "ttm_yield": 20.61%
+    "ttm_yield": 20.61
   },
   {
     "symbol": "MAXI",
@@ -277,7 +277,7 @@
     "category": "alternative",
     "type": "Bitcoin Strategy ETF",
     "exp_ratio": 1.31,
-    "ttm_yield": 54.75%
+    "ttm_yield": 54.75
   },
   {
     "symbol": "TESL",
@@ -285,7 +285,7 @@
     "category": "equity",
     "type": "Volt TSLA Revolution ETF",
     "exp_ratio": 0.97,
-    "ttm_yield": 33.14%
+    "ttm_yield": 33.14
   },
   {
     "symbol": "CAS",
@@ -293,7 +293,7 @@
     "category": "equity-income",
     "type": "China A Shares PLUS Income ETF",
     "exp_ratio": 0.88,
-    "ttm_yield": 37.53%
+    "ttm_yield": 37.53
   },
   {
     "symbol": "LITL",
@@ -301,7 +301,7 @@
     "category": "equity-income",
     "type": "Piper Sandler US Small-Cap PLUS Income ETF",
     "exp_ratio": 0.91,
-    "ttm_yield": 1.92%
+    "ttm_yield": 1.92
   },
   {
     "symbol": "IOPP",
@@ -309,7 +309,7 @@
     "category": "equity",
     "type": "Tara India Opportunities ETF",
     "exp_ratio": 1.03,
-    "ttm_yield": 0.37%
+    "ttm_yield": 0.37
   },
   {
     "symbol": "DINE",
