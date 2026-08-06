@@ -1,0 +1,608 @@
+{% macro pct_cell(v) %}
+  {% if v is none %}<td class="num na">—</td>
+  {% elif v == 0 %}<td class="num zero">0.0%</td>
+  {% elif v >= 10  %}<td class="num p3">+{{ '%.1f'|format(v) }}%</td>
+  {% elif v >= 5  %}<td class="num p2">+{{ '%.1f'|format(v) }}%</td>
+  {% elif v >= 2.5  %}<td class="num p1">+{{ '%.1f'|format(v) }}%</td>
+  {% elif v > 0   %}<td class="num p0">+{{ '%.1f'|format(v) }}%</td>
+  {% elif v > -2.5  %}<td class="num n0">{{ '%.1f'|format(v) }}%</td>
+  {% elif v > -5  %}<td class="num n1">{{ '%.1f'|format(v) }}%</td>
+  {% elif v > -10 %}<td class="num n2">{{ '%.1f'|format(v) }}%</td>
+  {% else         %}<td class="num n3">{{ '%.1f'|format(v) }}%</td>
+  {% endif %}
+{% endmacro %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETF Dashboard</title>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LQXC44Q7N5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-LQXC44Q7N5');
+</script>
+  
+<style>
+:root {
+  --bg:      #f2f5f4;
+  --surface: #ffffff;
+  --header:  #0a1420;
+  --border:  #d4dcda;
+  --text:    #16211c;
+  --muted:   #667169;
+  --accent:  #0f9d70;
+  --gold:    #b45309;
+
+  --eqi-bg:  #fff7ed;
+  --eq-bg:   #ecfdf5;
+  --fi-bg:   #eff6ff;
+  --alt-bg:  #f5f3ff;
+
+  --p3:#14532d; --p3t:#bbf7d0;
+  --p2:#166534; --p2t:#dcfce7;
+  --p1:#15803d; --p1t:#f0fdf4;
+  --p0:#d1fae5; --p0t:#065f46;
+  --n0:#fee2e2; --n0t:#991b1b;
+  --n1:#fca5a5; --n1t:#7f1d1d;
+  --n2:#ef4444; --n2t:#ffffff;
+  --n3:#991b1b; --n3t:#fecaca;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; zoom: 0.9; }
+
+header {
+  background: var(--header);
+  color: #fff;
+  padding: 10px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px;
+  position: sticky; top: 0; z-index: 20;
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+.h-left h1 { font-size: 16px; font-weight: 700; }
+.h-left .formula { font-size: 10.5px; color: #5eead4; margin-top: 2px; }
+.h-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.badge { background: rgba(255,255,255,.12); border-radius: 6px; padding: 4px 10px; font-size: 11px; color: #cbd5e1; }
+.badge b { color: #fff; }
+  
+.legend {
+  background: #f8faf9; border-bottom: 1px solid var(--border);
+  padding: 6px 14px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+  font-size: 11px; color: var(--muted);
+}
+.legend b { color: var(--text); }
+.flag-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; vertical-align: middle; }
+.dot-g { background: #16a34a; } .dot-r { background: #dc2626; } .dot-gr { background: #9ca3af; }
+.cat-chip { border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 600; border: 1px solid; }
+.chip-eqi { background: var(--eqi-bg); color: #9a3412; border-color: #fdba74; }
+.chip-eq  { background: var(--eq-bg);  color: #065f46; border-color: #6ee7b7; }
+.chip-fi  { background: var(--fi-bg);  color: #1e40af; border-color: #93c5fd; }
+.chip-alt { background: var(--alt-bg); color: #5b21b6; border-color: #c4b5fd; }
+
+.toggle-bar { background: #f1f5f4; border-bottom: 1px solid var(--border); padding: 4px 14px; font-size: 11px; color: var(--muted); display: flex; gap: 14px; align-items: center; }
+.toggle-bar button { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 9px; font-size: 11px; cursor: pointer; color: var(--accent); }
+.toggle-bar button:hover { background: #d1fae5; }
+
+.table-wrap { overflow-x: auto; padding: 10px 8px 24px; }
+table { border-collapse: collapse; min-width: 1100px; width: 100%; background: var(--surface); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+
+thead th {
+  background: #1e2d45; color: #93c5fd;
+  font-size: 11px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase;
+  padding: 6px 6px; border-bottom: 2px solid #334155;
+  cursor: pointer; user-select: none; white-space: nowrap;
+  position: sticky; top: 0; z-index: 5;
+}
+thead th:hover { color: #fff; }
+thead th.sorted-asc::after  { content: " ▲"; color: #fbbf24; }
+thead th.sorted-desc::after { content: " ▼"; color: #fbbf24; }
+.gh { background: #0f172a !important; color: #64748b !important; font-size: 9.5px !important; text-align: center; border-bottom: 1px solid #334155 !important; cursor: default !important; position: sticky; top: 0; z-index: 5; }
+.gh-perf { color: #4ade80 !important; }
+.gh-ind  { color: #fbbf24 !important; }
+.gh-flag { color: #fb923c !important; }
+.gh-bar  { color: #a78bfa !important; }
+.gh-vol  { color: #38bdf8 !important; }
+
+tbody tr { border-bottom: 1px solid #f1f5f9; transition: background .1s; }
+tbody tr:hover { background: #ecfdf9 !important; }
+
+tr.cat-equity-income { background: var(--eqi-bg); }
+tr.cat-equity        { background: var(--eq-bg); }
+tr.cat-fixed-income  { background: var(--fi-bg); }
+tr.cat-alternative   { background: var(--alt-bg); }
+
+td { padding: 3px 3px; white-space: nowrap; vertical-align: middle; }
+td.rank  { font-weight: 800; font-size: 13px; color: var(--gold); text-align: center; width: 30px; }
+td.sym a { font-weight: 700; font-size: 13px; font-family: 'Courier New', monospace; color: var(--accent); text-decoration: none; }
+td.sym a:hover { text-decoration: underline; }
+td.fname { max-width: 170px; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+td.ftype { max-width: 140px; overflow: hidden; text-overflow: ellipsis; font-weight: 500; font-size: 12px; }
+td.spark { width:110px; padding: 3px 3px; }
+td.num   { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; min-width: 20px; }
+td.na    { text-align: right; color: var(--muted); }
+td.rs    { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 54px; }
+td.zsc   { text-align: right; font-variant-numeric: tabular-nums; min-width: 44px; color: var(--muted); }
+td.exp   { text-align: right; font-variant-numeric: tabular-nums; min-width: 36px; color: #0f766e; font-weight: 600; }
+td.flag-cell { text-align: center; padding: 3px 3px; min-width: 34px; }
+
+/* Volume flow cell */
+td.vol-cell { text-align: center; padding: 3px 2px; min-width: 25px; font-size: 15px; line-height: 1.2; }
+.vol-up   { color: #16a34a; font-weight: 700; }
+.vol-down { color: #dc2626; font-weight: 700; }
+.vol-neg  { color: #dc2626; font-size: 13px; font-weight: 700; }
+.vol-pos  { color: #16a34a; font-size: 13px; font-weight: 700; }
+  
+.p3 { background: var(--p3) !important; color: var(--p3t); }
+.p2 { background: var(--p2) !important; color: var(--p2t); }
+.p1 { background: var(--p1) !important; color: var(--p1t); }
+.p0 { background: var(--p0) !important; color: var(--p0t); }
+.n0 { background: var(--n0) !important; color: var(--n0t); }
+.n1 { background: var(--n1) !important; color: var(--n1t); }
+.n2 { background: var(--n2) !important; color: var(--n2t); }
+.n3 { background: var(--n3) !important; color: var(--n3t); }
+.zero { background: #f9fafb !important; color: var(--muted); text-align: right; }
+
+.fc { display: inline-block; width: 13px; height: 13px; border-radius: 50%; }
+.fc-green { background: #16a34a; box-shadow: 0 0 4px #16a34a88; }
+.fc-red   { background: #dc2626; box-shadow: 0 0 4px #dc262688; }
+.fc-grey  { background: #d1d5db; }
+
+.pill-ob { background: #fff7ed; color: #c2410c; border: 1px solid #fb923c; border-radius: 4px; padding: 1px 5px; font-size: 10px; font-weight: 700; }
+.pill-os { background: #eff6ff; color: #1d4ed8; border: 1px solid #60a5fa; border-radius: 4px; padding: 1px 5px; font-size: 10px; font-weight: 700; }
+.rs-hi   { color: #15803d; }
+.rs-mid  { color: #4b5563; }
+.rs-lo   { color: #dc2626; }
+
+td.bar-cell { min-width: 160px; padding: 4px 6px; }
+.bar-wrap { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--muted); }
+.bar-track { flex: 1; background: #e5e7eb; border-radius: 3px; height: 8px; position: relative; min-width: 60px; }
+.bar-fill  { height: 100%; background: #2563eb; border-radius: 3px; min-width: 2px; }
+.bar-lo, .bar-hi { font-size: 9.5px; min-width: 30px; }
+.bar-lo { text-align: right; } .bar-hi { text-align: left; }
+
+.col-hidden { display: none; }
+footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px; border-top: 1px solid var(--border); background: var(--surface); }
+
+.type-label {
+  display: inline-block; border-radius: 4px; padding: 1px 6px;
+  font-size: 10px; font-weight: 600; border: 1px solid; white-space: nowrap;
+}
+
+/* ── Print button ── */
+.btn-print {
+  border: none; border-radius: 4px; padding: 6px 11px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  display: inline-block; color: #fff; background: #475569;
+}
+.btn-print:hover { background: #334155; }
+
+/* ── Print-only title banner ── */
+.print-title {
+  display: none;
+}
+
+/* ── Print styles ── */
+@media print {
+  @page {
+    size: landscape;
+    margin: 0.4in 0.3in;
+  }
+
+  /* Show print title banner */
+  .print-title {
+    display: block !important;
+    background: #0f2240 !important;
+    color: #fff !important;
+    padding: 8px 14px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    text-align: left !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .print-title .print-sub {
+    font-size: 10px;
+    font-weight: 400;
+    color: #93c5fd;
+    margin-top: 2px;
+  }
+
+  /* Hide interactive / screen-only elements */
+  header,
+  .legend,
+  .toggle-bar,
+  #loading-banner,
+  .btn-print,
+  footer { display: none !important; }
+
+  /* Reset page background */
+  body {
+    background: #fff !important;
+    font-size: 9px !important;
+    zoom: 1 !important;
+  }
+
+  /* Table container — remove scroll, no padding */
+  .table-wrap {
+    overflow: visible !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Table — full width, no shadow, no min-width */
+  table {
+    min-width: 0 !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    font-size: 8.5px !important;
+  }
+
+  /* Repeating headers on every page */
+  thead { display: table-header-group !important; }
+  tbody { display: table-row-group !important; }
+  tr    { page-break-inside: avoid !important; }
+
+  /* Un-sticky the header row for print */
+  thead th {
+    position: static !important;
+    padding: 4px 3px !important;
+    font-size: 8px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .gh {
+    position: static !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Compact cells */
+  td {
+    padding: 3px 2px !important;
+    font-size: 8.5px !important;
+  }
+  td.rank { font-size: 10px !important; }
+  td.sym a { font-size: 9px !important; color: #000 !important; text-decoration: none !important; }
+  td.fname { max-width: 150px !important; font-size: 8.5px !important; }
+  td.ftype { font-size: 7.5px !important; max-width: 120px !important; }
+  td.spark { display: none !important; }
+  thead th[data-col="3"] { display: none !important; }
+
+  /* Volume flow — keep visible, compact */
+  td.vol-cell { font-size: 12px !important; }
+
+  /* Performance colors — force print */
+  .p3, .p2, .p1, .p0, .n0, .n1, .n2, .n3 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Category row tints */
+  tr.cat-equity-income, tr.cat-equity, tr.cat-fixed-income, tr.cat-alternative {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Flag circles */
+  .fc {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    width: 10px !important;
+    height: 10px !important;
+    box-shadow: none !important;
+  }
+
+  /* Volume flow colors */
+  .vol-up, .vol-down, .vol-pos, .vol-neg {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Category chips */
+  .cat-chip, .type-label {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-size: 7px !important;
+  }
+
+  /* OB/OS pills */
+  .pill-ob, .pill-os {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-size: 7.5px !important;
+  }
+
+  /* 3-year bar */
+  td.bar-cell { min-width: 120px !important; padding: 2px 4px !important; }
+  .bar-wrap { font-size: 7.5px !important; }
+  .bar-track, .bar-fill {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Keep hidden columns hidden in print */
+  .col-hidden { display: none !important; }
+
+  /* Links — no underline, black text */
+  a { color: #000 !important; text-decoration: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Print-only title banner (hidden on screen, visible when printing) -->
+<div class="print-title">
+  📊 Simplify ETF Dashboard
+  <div class="print-sub">RS Score = (1D×10%) + (1W×20%) + (1M×30%) + (3M×40%) &nbsp;|&nbsp; Rank 1 = strongest &nbsp;|&nbsp; Printed: <script>document.write(new Date().toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'2-digit'}));</script> &nbsp;|&nbsp; Data as of: {{ last_updated }}</div>
+</div>
+
+{% if error %}
+<div style="background:#991b1b;color:#fecaca;text-align:center;padding:10px;font-size:13px;font-weight:600;">⚠ Error: {{ error }}</div>
+{% endif %}
+{% if is_loading %}
+<div id="loading-banner" style="background:#1e40af;color:#fff;padding:10px 16px;font-size:12.5px;display:flex;align-items:center;gap:12px;justify-content:center;">
+  <span>⏳</span>
+  <span>Loading ETF data...</span>
+  <span id="prog" style="opacity:.8">{{ progress }}</span>
+  <span id="fcnt" style="opacity:.6;font-size:11px;"></span>
+</div>
+<script>
+(function poll(){
+  setTimeout(function(){
+    fetch('/status').then(r=>r.json()).then(d=>{
+      var p=document.getElementById('prog'), c=document.getElementById('fcnt');
+      if(p) p.textContent=d.progress||'';
+      if(c) c.textContent=d.funds>0?'('+d.funds+' loaded)':'';
+      if(d.phase>=4 && d.funds>0){ location.reload(); } else { poll(); }
+    }).catch(()=>poll());
+  },5000);
+})();
+</script>
+{% endif %}
+
+<header>
+  <div class="h-left">
+    <h1>📊 Simplify ETF Dashboard (updated daily at 6:00pm CT)</h1>
+    <div class="formula">Relative Strength Score = (1D×10%) + (1W×20%) + (1Mx30%) + (3M×40%) &nbsp;|&nbsp; Rank 1 = strongest</div>
+  </div>
+
+{% if breadth and breadth.sma21.total > 0 %}
+<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+  <div style="display:flex;flex-direction:column;gap:3px;width:185px;flex-shrink:0;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;">
+      <span style="font-size:0.68rem;font-weight:700;color:#22c55e;font-family:monospace;white-space:nowrap;">{{ breadth.sma21.above_pct }}% ({{ breadth.sma21.above }})</span>
+      <span style="font-size:0.58rem;color:#e8e7e3;letter-spacing:0.1em;text-transform:uppercase;flex-shrink:0;padding:0 4px;">1 MONTH</span>
+      <span style="font-size:0.68rem;font-weight:700;color:#f87171;font-family:monospace;white-space:nowrap;">({{ breadth.sma21.below }}) {{ breadth.sma21.below_pct }}%</span>
+    </div>
+    <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;background:#0d1624;gap:1px;">
+      <div style="height:100%;width:{{ breadth.sma21.above_pct }}%;background:#16a34a;border-radius:3px 0 0 3px;min-width:{% if breadth.sma21.above > 0 %}2px{% else %}0{% endif %};flex-shrink:0;"></div>
+      <div style="height:100%;flex:1;background:#dc2626;border-radius:0 3px 3px 0;min-width:{% if breadth.sma21.below > 0 %}2px{% else %}0{% endif %};"></div>
+    </div>
+  </div>
+
+  <div style="width:1px;height:28px;background:rgba(255,255,255,0.1);flex-shrink:0;"></div>
+
+  <div style="display:flex;flex-direction:column;gap:3px;width:185px;flex-shrink:0;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;">
+      <span style="font-size:0.68rem;font-weight:700;color:#22c55e;font-family:monospace;white-space:nowrap;">{{ breadth.sma63.above_pct }}% ({{ breadth.sma63.above }})</span>
+      <span style="font-size:0.58rem;color:#e8e7e3;letter-spacing:0.1em;text-transform:uppercase;flex-shrink:0;padding:0 4px;">3 MONTH</span>
+      <span style="font-size:0.68rem;font-weight:700;color:#f87171;font-family:monospace;white-space:nowrap;">({{ breadth.sma63.below }}) {{ breadth.sma63.below_pct }}%</span>
+    </div>
+    <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;background:#0d1624;gap:1px;">
+      <div style="height:100%;width:{{ breadth.sma63.above_pct }}%;background:#16a34a;border-radius:3px 0 0 3px;min-width:{% if breadth.sma63.above > 0 %}2px{% else %}0{% endif %};flex-shrink:0;"></div>
+      <div style="height:100%;flex:1;background:#dc2626;border-radius:0 3px 3px 0;min-width:{% if breadth.sma63.below > 0 %}2px{% else %}0{% endif %};"></div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<button class="btn-print" onclick="window.print()">🖨️ Print</button>
+</div>
+</header>
+
+<div class="legend">
+  <b>Flags:</b>
+  <span><span class="flag-dot dot-g"></span> Above SMA</span>
+  <span><span class="flag-dot dot-gr"></span> At SMA</span>
+  <span><span class="flag-dot dot-r"></span> Below SMA</span>
+  &nbsp;|&nbsp; <b>1M</b>=21-day &nbsp; <b>3M</b>=63-day &nbsp;|&nbsp;
+  <b>Vol(ume):</b> ▲/▼ = 5d vs 21d avg &nbsp; +/− = vs week ago &nbsp;|&nbsp;
+  <b>Categories:</b>
+  <span class="cat-chip chip-eqi">Equity Income</span>
+  <span class="cat-chip chip-eq">Equity</span>
+  <span class="cat-chip chip-fi">Fixed Income</span>
+  <span class="cat-chip chip-alt">Alternative</span>
+</div>
+
+<div class="toggle-bar">
+  <span>Optional:</span>
+  <button onclick="toggleCol('cat-col')">Category</button>
+  <button onclick="toggleCol('rs-col')">RS Score</button>
+  <button onclick="toggleCol('zsc-col')">Z-Score</button>
+  <button onclick="toggleCol('obos-col')">OB/OS</button>
+  <button onclick="toggleCol('exp-col')">Exp Ratio</button>
+  <span style="margin-left:auto;color:var(--muted);font-size:11px;">OB = Overbought | OS = Oversold  | Symbol → Yahoo Finance</span>
+</div>
+
+<div class="table-wrap">
+<table id="ft">
+  <thead>
+    <tr>
+      <th class="gh" colspan="3"></th>
+      <th class="gh" colspan="1"></th>
+      <th class="gh gh-ind col-hidden cat-col" colspan="1">Category</th>
+      <th class="gh gh-vol" colspan="1"></th>
+      <th class="gh gh-perf" colspan="7">◀ Performance % ▶</th>
+      <th class="gh gh-bar"  colspan="1">3-Yr Range</th>
+      <th class="gh gh-ind col-hidden exp-col"  colspan="1">Exp Ratio</th>
+      <th class="gh gh-ind col-hidden rs-col"   colspan="1">RS Score</th>
+      <th class="gh gh-ind col-hidden zsc-col"  colspan="1">Z-Score</th>
+      <th class="gh gh-ind col-hidden obos-col" colspan="1">OB/OS</th>
+      <th class="gh gh-flag" colspan="2">◀ Flags ▶</th>
+    </tr>
+    <tr>
+      <th onclick="sortTable(0)"  data-col="0">Rank</th>
+      <th onclick="sortTable(1)"  data-col="1">Symbol</th>
+      <th onclick="sortTable(2)"  data-col="2">ETF Name</th>
+      <th data-col="3" style="cursor:default">8-Mth Sparkline</th>
+      <th onclick="sortTable(4)"  data-col="4" class="col-hidden cat-col">Category | Style / Factor</th>
+      <th onclick="sortTable(5)"  data-col="5" title="▲/▼ = 5-day vs 21-day avg volume | +/− = change vs week ago">Vol Flow</th>
+      <th onclick="sortTable(6)"  data-col="6">1D</th>
+      <th onclick="sortTable(7)"  data-col="7">1W</th>
+      <th onclick="sortTable(8)"  data-col="8">1M</th>
+      <th onclick="sortTable(9)"  data-col="9">3M</th>
+      <th onclick="sortTable(10)" data-col="10">6M</th>
+      <th onclick="sortTable(11)" data-col="11">YTD</th>
+      <th onclick="sortTable(12)" data-col="12">1Y</th>
+      <th onclick="sortTable(13)" data-col="13" style="min-width:160px">Lo   ▸   Last   ▸   Hi</th>
+      <th onclick="sortTable(14)" data-col="14" class="col-hidden exp-col">Exp %</th>
+      <th onclick="sortTable(15)" data-col="15" class="col-hidden rs-col">RS Score</th>
+      <th onclick="sortTable(16)" data-col="16" class="col-hidden zsc-col">Z-Score</th>
+      <th onclick="sortTable(17)" data-col="17" class="col-hidden obos-col">OB / OS</th>
+      <th onclick="sortTable(18)" data-col="18">1Mth</th>
+      <th onclick="sortTable(19)" data-col="19">3Mth</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for f in funds %}
+  <tr class="cat-{{ f.category }}">
+    <td class="rank">{{ f.rank if f.rank else '—' }}</td>
+    <td class="sym"><a href="{{ f.morningstar_url }}" target="_blank">{{ f.symbol }}</a></td>
+    <td class="fname">{{ f.name }}</td>
+    <td class="spark">{{ f.sparkline | safe }}</td>
+
+    <!-- Category (hidden by default) -->
+    <td class="ftype col-hidden cat-col">
+      {% set cat = f.category %}
+      {% if cat == 'equity-income' %}
+        <span class="type-label" style="background:var(--eqi-bg);color:#9a3412;border-color:#fdba74;">{{ f.type }}</span>
+      {% elif cat == 'equity' %}
+        <span class="type-label" style="background:var(--eq-bg);color:#065f46;border-color:#6ee7b7;">{{ f.type }}</span>
+      {% elif cat == 'fixed-income' %}
+        <span class="type-label" style="background:var(--fi-bg);color:#1e40af;border-color:#93c5fd;">{{ f.type }}</span>
+      {% else %}
+        <span class="type-label" style="background:var(--alt-bg);color:#5b21b6;border-color:#c4b5fd;">{{ f.type }}</span>
+      {% endif %}
+    </td>
+
+    <!-- Volume Flow -->
+    <td class="vol-cell" title="▲/▼ = 5-day vs 21-day avg volume | +/− = trending vs week ago">
+      {% if f.vol_arrow %}
+        <span class="vol-{{ f.vol_arrow }}">{% if f.vol_arrow == 'up' %}▲{% else %}▼{% endif %}</span>
+        <span class="vol-{{ f.vol_change }}">{% if f.vol_change == 'pos' %}+{% else %}−{% endif %}</span>
+      {% else %}
+        <span style="color:var(--muted)">—</span>
+      {% endif %}
+    </td>
+
+    {{ pct_cell(f['1D'])  }}
+    {{ pct_cell(f['1W'])  }}
+    {{ pct_cell(f['1M'])  }}
+    {{ pct_cell(f['3M'])  }}
+    {{ pct_cell(f['6M'])  }}
+    {{ pct_cell(f['YTD']) }}
+    {{ pct_cell(f['1Y'])  }}
+
+    <td class="bar-cell">
+      {% if f.bar_pct is not none %}
+      <div class="bar-wrap">
+        <span class="bar-lo">${{ f.low3 }}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:{{ [f.bar_pct,100]|min }}%"></div></div>
+        <span class="bar-hi">${{ f.high3 }}</span>
+      </div>
+      <div style="font-size:9.5px;color:var(--muted);text-align:center;margin-top:1px;">Last ${{ f.last_price }} ({{ f.bar_pct }}%)</div>
+      {% else %}<span class="na">—</span>{% endif %}
+    </td>
+
+    <!-- Expense ratio (hidden by default) -->
+    <td class="exp num col-hidden exp-col">
+      {% if f.exp_ratio is not none %}{{ '%.2f'|format(f.exp_ratio) }}%{% else %}<span style="color:var(--muted)">—</span>{% endif %}
+    </td>
+
+    <!-- RS Score (hidden) -->
+    <td class="rs col-hidden rs-col {% if f.rs_score and f.rs_score > 1 %}rs-hi{% elif f.rs_score and f.rs_score < -1 %}rs-lo{% else %}rs-mid{% endif %}">
+      {{ '%.3f'|format(f.rs_score) if f.rs_score is not none else '—' }}
+    </td>
+
+    <!-- Z-Score (hidden) -->
+    <td class="zsc col-hidden zsc-col">{{ '%.2f'|format(f.zscore) if f.zscore is not none else '—' }}</td>
+
+    <!-- OB/OS (hidden) -->
+    <td class="flag-cell col-hidden obos-col">
+      {% if f.ob_os == 'Overbought' %}<span class="pill-ob">Overbought</span>
+      {% elif f.ob_os == 'Oversold'  %}<span class="pill-os">Oversold</span>
+      {% else %}<span style="color:var(--muted)">—</span>{% endif %}
+    </td>
+
+    <td class="flag-cell" title="1Mth: vs 21-day SMA"><span class="fc fc-{{ f.trade_flag }}"></span></td>
+    <td class="flag-cell" title="3Mth: vs 63-day SMA"><span class="fc fc-{{ f.trend_flag }}"></span></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<footer>
+  Data: Tiingo API &nbsp;|&nbsp; Refreshes after US market close ( 6:00PM CT) &nbsp;|&nbsp;
+  Expense ratios updated annually in funds.json &nbsp;|&nbsp; Symbol → Yahoo Finance &nbsp;|&nbsp; Click any column to sort
+</footer>
+
+<script>
+let sortCol = 0, sortAsc = true;
+function sortTable(col) {
+  const tbody = document.querySelector("#ft tbody");
+  const rows  = Array.from(tbody.rows);
+  if (sortCol === col) { sortAsc = !sortAsc; }
+  else { sortCol = col; sortAsc = (col <= 2 || col === 4); }
+  rows.sort((a, b) => {
+    const av = cellVal(a.cells[col]);
+    const bv = cellVal(b.cells[col]);
+    if (av === null && bv === null) return 0;
+    if (av === null) return 1;
+    if (bv === null) return -1;
+    return sortAsc ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
+  });
+  rows.forEach(r => tbody.appendChild(r));
+  document.querySelectorAll("#ft thead tr:nth-child(2) th").forEach((th, i) => {
+    th.classList.remove("sorted-asc","sorted-desc");
+    if (i === col) th.classList.add(sortAsc ? "sorted-asc" : "sorted-desc");
+  });
+}
+function cellVal(cell) {
+  const circle = cell.querySelector(".fc");
+  if (circle) {
+    if (circle.classList.contains("fc-green")) return 1;
+    if (circle.classList.contains("fc-grey"))  return 0;
+    if (circle.classList.contains("fc-red"))   return -1;
+    return null;
+  }
+  // Volume flow cell: sort ▲+ > ▲- > ▼- > ▼+
+  // For ▲: high volume (+) is better. For ▼: high volume (+) is worse.
+  const volUp   = cell.querySelector(".vol-up");
+  const volDown = cell.querySelector(".vol-down");
+  const volPos  = cell.querySelector(".vol-pos");
+  const volNeg  = cell.querySelector(".vol-neg");
+  if (volUp || volDown) {
+    var arrow = volUp ? 1 : -1;
+    return arrow * (1 + (volPos ? 0.1 : -0.1));
+  }
+  const t = cell.innerText.trim().replace(/[+%$,]/g,"");
+  if (t === "—" || t === "") return null;
+  const n = parseFloat(t);
+  return isNaN(n) ? t.toLowerCase() : n;
+}
+function toggleCol(cls) {
+  document.querySelectorAll("."+cls).forEach(el => el.classList.toggle("col-hidden"));
+}
+</script>
+</body>
+</html>
