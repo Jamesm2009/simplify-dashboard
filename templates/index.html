@@ -131,6 +131,7 @@ td.na    { text-align: right; color: var(--muted); }
 td.rs    { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 54px; }
 td.zsc   { text-align: right; font-variant-numeric: tabular-nums; min-width: 44px; color: var(--muted); }
 td.exp   { text-align: right; font-variant-numeric: tabular-nums; min-width: 36px; color: #0f766e; font-weight: 600; }
+td.ttm   { text-align: right; font-variant-numeric: tabular-nums; min-width: 44px; color: #0f766e; font-weight: 600; }
 td.flag-cell { text-align: center; padding: 3px 3px; min-width: 34px; }
 
 /* Volume flow cell */
@@ -430,6 +431,8 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px
   <button onclick="toggleCol('zsc-col')">Z-Score</button>
   <button onclick="toggleCol('obos-col')">OB/OS</button>
   <button onclick="toggleCol('exp-col')">Exp Ratio</button>
+  <button onclick="toggleCol('ttm-col')">TTM Yield</button>
+  <span style="margin-left:6px;">Last TTM update: <span id="ttm-update-date">08/01/2026</span></span>
   <span style="margin-left:auto;color:var(--muted);font-size:11px;">OB = Overbought | OS = Oversold  | Symbol → Yahoo Finance</span>
 </div>
 
@@ -444,6 +447,7 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px
       <th class="gh gh-perf" colspan="7">◀ Performance % ▶</th>
       <th class="gh gh-bar"  colspan="1">3-Yr Range</th>
       <th class="gh gh-ind col-hidden exp-col"  colspan="1">Exp Ratio</th>
+      <th class="gh gh-ind col-hidden ttm-col"  colspan="1">TTM Yield</th>
       <th class="gh gh-ind col-hidden rs-col"   colspan="1">RS Score</th>
       <th class="gh gh-ind col-hidden zsc-col"  colspan="1">Z-Score</th>
       <th class="gh gh-ind col-hidden obos-col" colspan="1">OB/OS</th>
@@ -465,11 +469,12 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px
       <th onclick="sortTable(12)" data-col="12">1Y</th>
       <th onclick="sortTable(13)" data-col="13" style="min-width:160px">Lo   ▸   Last   ▸   Hi</th>
       <th onclick="sortTable(14)" data-col="14" class="col-hidden exp-col">Exp %</th>
-      <th onclick="sortTable(15)" data-col="15" class="col-hidden rs-col">RS Score</th>
-      <th onclick="sortTable(16)" data-col="16" class="col-hidden zsc-col">Z-Score</th>
-      <th onclick="sortTable(17)" data-col="17" class="col-hidden obos-col">OB / OS</th>
-      <th onclick="sortTable(18)" data-col="18">1Mth</th>
-      <th onclick="sortTable(19)" data-col="19">3Mth</th>
+      <th onclick="sortTable(15)" data-col="15" class="col-hidden ttm-col">TTM %</th>
+      <th onclick="sortTable(16)" data-col="16" class="col-hidden rs-col">RS Score</th>
+      <th onclick="sortTable(17)" data-col="17" class="col-hidden zsc-col">Z-Score</th>
+      <th onclick="sortTable(18)" data-col="18" class="col-hidden obos-col">OB / OS</th>
+      <th onclick="sortTable(19)" data-col="19">1Mth</th>
+      <th onclick="sortTable(20)" data-col="20">3Mth</th>
     </tr>
   </thead>
   <tbody>
@@ -526,6 +531,11 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px
     <!-- Expense ratio (hidden by default) -->
     <td class="exp num col-hidden exp-col">
       {% if f.exp_ratio is not none %}{{ '%.2f'|format(f.exp_ratio) }}%{% else %}<span style="color:var(--muted)">—</span>{% endif %}
+    </td>
+
+    <!-- TTM Yield (hidden by default, manually updated monthly in funds.json) -->
+    <td class="ttm num col-hidden ttm-col">
+      {% if f.ttm_yield is not none %}{{ '%.2f'|format(f.ttm_yield) }}%{% else %}<span style="color:var(--muted)">—</span>{% endif %}
     </td>
 
     <!-- RS Score (hidden) -->
