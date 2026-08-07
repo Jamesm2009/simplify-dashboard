@@ -365,6 +365,11 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px
 .tab-btn:hover { color: var(--text); }
 .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
+/* Generic show/hide toggle — used by tab switching (panel-table/panel-zchart).
+   Previously only defined for .price-modal.hidden, so #panel-zchart never
+   actually hid on screen and rendered below the table at all times. */
+.hidden { display: none !important; }
+
 /* ── Z-Score Chart panel ─────────────────────────────────────────────────── */
 .zchart-panel { padding: 14px 16px; background: #ffffff; }
 .zchart-controls {
