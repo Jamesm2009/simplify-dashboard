@@ -17,7 +17,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simplify ETFs</title>
+<title>Simplify ETF Dashboard</title>
+
+<!-- Chart.js for the Z-Score Chart tab -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-LQXC44Q7N5"></script>
@@ -335,7 +339,103 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px
 
   /* Links — no underline, black text */
   a { color: #000 !important; text-decoration: none !important; }
+
+  /* Print — hide the tab bar and z-chart panel */
+  .tab-bar { display: none !important; }
+  body.print-zchart #panel-table  { display: none !important; }
+  body.print-zchart #panel-zchart { display: block !important; }
+  body:not(.print-zchart) #panel-zchart { display: none !important; }
+  body:not(.print-zchart) #panel-table  { display: block !important; }
+  body.print-zchart .zchart-wrap {
+    height: 90vh !important;
+  }
 }
+
+/* ── Tab bar ─────────────────────────────────────────────────────────────── */
+.tab-bar {
+  display: flex; gap: 0; padding: 0 16px;
+  background: #ffffff; border-bottom: 2px solid var(--border);
+  position: sticky; top: 0; z-index: 10;
+}
+.tab-btn {
+  background: none; border: none; border-bottom: 3px solid transparent;
+  color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .4px;
+  text-transform: uppercase; padding: 10px 24px; cursor: pointer;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Z-Score Chart panel ─────────────────────────────────────────────────── */
+.zchart-panel { padding: 14px 16px; background: #ffffff; }
+.zchart-controls {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--border);
+}
+.zchart-controls label {
+  font-size: 11px; color: var(--muted); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .3px;
+}
+.zchart-controls select {
+  background: #f8faf9; border: 1px solid var(--border); border-radius: 5px;
+  color: var(--text); font-size: 13px; font-weight: 600;
+  padding: 5px 10px; cursor: pointer;
+}
+.zc-trail-btns { display: flex; gap: 4px; }
+.zc-trail-btn {
+  background: #f8faf9; border: 1px solid var(--border); border-radius: 5px;
+  color: var(--muted); font-size: 12px; font-weight: 600;
+  padding: 5px 10px; cursor: pointer; transition: all .15s;
+}
+.zc-trail-btn:hover { border-color: var(--accent); color: var(--text); }
+.zc-trail-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.zchart-legend {
+  display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--muted);
+  margin-left: auto;
+}
+.zchart-legend .lg { display: flex; align-items: center; gap: 5px; }
+.lg-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.lg-tri { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; }
+.zchart-wrap { position: relative; width: 100%; height: calc(100vh - 200px); min-height: 500px; }
+
+/* ── Price History Modal ─────────────────────────────────────────────── */
+.price-modal {
+  position: fixed; inset: 0;
+  background: rgba(10, 20, 32, 0.65);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 20px;
+}
+.price-modal.hidden { display: none; }
+.price-modal-box {
+  background: #fff; border-radius: 10px;
+  width: 100%; max-width: 800px; max-height: 88vh;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  display: flex; flex-direction: column;
+  animation: pm-in 0.15s ease-out;
+}
+@keyframes pm-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.price-modal-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.price-modal-ticker {
+  font-family: 'Courier New', monospace;
+  font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: 0.5px;
+}
+.price-modal-name { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.price-modal-close {
+  background: none; border: none; font-size: 26px; line-height: 1;
+  color: var(--muted); cursor: pointer; padding: 0 4px;
+}
+.price-modal-close:hover { color: var(--text); }
+.price-modal-body { padding: 16px 20px 20px; }
+.price-modal-chart-wrap {
+  position: relative; width: 100%;
+  height: min(52vh, 420px); min-height: 280px;
+}
+.price-modal-note { font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -410,6 +510,15 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px
 </div>
 </header>
 
+<!-- ── Tab bar ── -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab-btn-table"  onclick="switchTab('table')">Table</button>
+  <button class="tab-btn"        id="tab-btn-zchart" onclick="switchTab('zchart')">Z-Score Chart</button>
+</div>
+
+<!-- ── TABLE PANEL ── -->
+<div id="panel-table">
+
 <div class="legend">
   <b>Flags:</b>
   <span><span class="flag-dot dot-g"></span> Above SMA</span>
@@ -432,7 +541,7 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px
   <button onclick="toggleCol('obos-col')">OB/OS</button>
   <button onclick="toggleCol('exp-col')">Exp Ratio</button>
   <button onclick="toggleCol('ttm-col')">TTM Yield</button>
-  <span style="margin-left:6px;">Last TTM update: <span id="ttm-update-date">08/05/2026</span></span>
+  <span style="margin-left:6px;">Last TTM update: <span id="ttm-update-date">08/01/2026</span></span>
   <span style="margin-left:auto;color:var(--muted);font-size:11px;">OB = Overbought | OS = Oversold  | Symbol → Yahoo Finance</span>
 </div>
 
@@ -566,6 +675,72 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px
   Expense ratios updated annually in funds.json &nbsp;|&nbsp; Symbol → Yahoo Finance &nbsp;|&nbsp; Click any column to sort
 </footer>
 
+</div><!-- /panel-table -->
+
+<!-- ── Z-SCORE CHART PANEL ── -->
+<div id="panel-zchart" class="hidden">
+  <div class="zchart-panel">
+    <div class="zchart-controls">
+      <label for="zc-filter">View:</label>
+      <select id="zc-filter" onchange="renderZChart()">
+        <option value="all">All Funds</option>
+        <option value="equity">Equity</option>
+        <option value="equity-income">Equity Income</option>
+        <option value="fixed-income">Fixed Income</option>
+        <option value="alternative">Alternative</option>
+      </select>
+
+      <label for="zc-trail" style="margin-left:14px;">Trail:</label>
+      <div class="zc-trail-btns" id="zc-trail-btns">
+        <button class="zc-trail-btn active" data-trail="off" onclick="setTrail('off')">Latest Close</button>
+        <button class="zc-trail-btn"        data-trail="13"  onclick="setTrail('13')">13-Week Trail</button>
+      </div>
+
+      <div class="zchart-legend">
+        <span class="lg"><span class="lg-dot" style="background:#d97706;"></span>Equity Income</span>
+        <span class="lg"><span class="lg-dot" style="background:#059669;"></span>Equity</span>
+        <span class="lg"><span class="lg-dot" style="background:#2563eb;"></span>Fixed Income</span>
+        <span class="lg"><span class="lg-dot" style="background:#7c3aed;"></span>Alternative</span>
+        <span class="lg"><span class="lg-tri" style="border-bottom:10px solid #dc2626;"></span>Benchmark</span>
+      </div>
+    </div>
+
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">
+      1-year Z-Score of price. Red band = Overbought (z &gt; +2). Green band = Oversold (z &lt; −2).
+      Benchmarks: SPY (US equity), VGK (Intl equity), IEF (intermediate bonds), DBC (commodities).
+      <a href="https://www.investopedia.com/terms/z/zscore.asp" target="_blank" style="color:var(--accent);text-decoration:underline;">Z-Score explained</a>
+      &nbsp;·&nbsp;
+      <span style="color:var(--accent);">💡 Click any current-day dot to see an 8-month price chart</span>
+    </div>
+
+    <div class="zchart-wrap">
+      <canvas id="zscoreChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ── PRICE HISTORY MODAL ── -->
+<div id="price-modal" class="price-modal hidden" onclick="closePriceModal(event)">
+  <div class="price-modal-box" onclick="event.stopPropagation()">
+    <div class="price-modal-header">
+      <div>
+        <div class="price-modal-ticker" id="pm-ticker">—</div>
+        <div class="price-modal-name" id="pm-name">Loading…</div>
+      </div>
+      <button class="price-modal-close" onclick="closePriceModal()" aria-label="Close">×</button>
+    </div>
+    <div class="price-modal-body">
+      <div class="price-modal-chart-wrap">
+        <canvas id="priceModalChart"></canvas>
+      </div>
+      <div class="price-modal-note">
+        Actual daily adjusted close prices over the last ~8 months, auto-scaled to fit.
+        Sharp step-downs can reflect fund distributions.
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 let sortCol = 0, sortAsc = true;
 function sortTable(col) {
@@ -613,6 +788,391 @@ function cellVal(cell) {
 function toggleCol(cls) {
   document.querySelectorAll("."+cls).forEach(el => el.classList.toggle("col-hidden"));
 }
+
+// ── Tab switching ───────────────────────────────────────────────────────────
+let activeTab = 'table';
+function switchTab(tab) {
+  activeTab = tab;
+  const tblPanel = document.getElementById('panel-table');
+  const zPanel   = document.getElementById('panel-zchart');
+  const tblBtn   = document.getElementById('tab-btn-table');
+  const zBtn     = document.getElementById('tab-btn-zchart');
+
+  tblPanel.classList.add('hidden');
+  zPanel.classList.add('hidden');
+  tblBtn.classList.remove('active');
+  zBtn.classList.remove('active');
+
+  if (tab === 'zchart') {
+    zPanel.classList.remove('hidden');
+    zBtn.classList.add('active');
+    loadZChart();
+  } else {
+    tblPanel.classList.remove('hidden');
+    tblBtn.classList.add('active');
+  }
+}
+
+window.addEventListener('beforeprint', function() {
+  if (activeTab === 'zchart') {
+    document.body.classList.add('print-zchart');
+    if (zChartInstance) { try { zChartInstance.resize(); } catch(e){} }
+  }
+});
+window.addEventListener('afterprint', function() {
+  document.body.classList.remove('print-zchart');
+  if (zChartInstance) { try { zChartInstance.resize(); } catch(e){} }
+});
+
+// ── Z-Score Chart ───────────────────────────────────────────────────────────
+let zChartData = null;
+let zChartInstance = null;
+let zTrailMode = 'off';
+
+const Z_CAT_COLORS = {
+  'equity-income': '#d97706',
+  'equity':         '#059669',
+  'fixed-income':   '#2563eb',
+  'alternative':    '#7c3aed',
+};
+
+const Z_FILTER_BENCH = {
+  all:             ['SPY','VGK','IEF','DBC'],
+  equity:          ['SPY','VGK'],
+  'equity-income': ['SPY'],
+  'fixed-income':  ['IEF'],
+  alternative:     ['SPY','IEF','DBC'],
+};
+
+function setTrail(mode) {
+  zTrailMode = mode;
+  document.querySelectorAll('.zc-trail-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.trail === mode);
+  });
+  renderZChart();
+}
+
+function _trailPointsFor(symbol, xPos, meta) {
+  if (zTrailMode === 'off' || !zChartData || !zChartData.weekly_history) return [];
+  const hist = zChartData.weekly_history[symbol];
+  if (!hist || hist.length === 0) return [];
+  const take = hist.slice(-13);
+  return take.map(function(pt, i) {
+    return {
+      x: xPos, y: pt.zscore,
+      _meta: { label: meta.label, name: meta.name, zscore: pt.zscore, date: pt.date,
+               isTrail: true, weeksAgo: take.length - 1 - i },
+    };
+  });
+}
+
+function loadZChart() {
+  if (zChartData) { renderZChart(); return; }
+  fetch('/api/zscores').then(r => r.json()).then(d => {
+    zChartData = d;
+    renderZChart();
+  }).catch(err => { console.error('Z-Score fetch failed:', err); });
+}
+
+function renderZChart() {
+  if (!zChartData) return;
+  const filter = document.getElementById('zc-filter').value;
+
+  let funds = zChartData.funds.filter(f => f.zscore !== null);
+  if (filter !== 'all') {
+    funds = funds.filter(f => f.chart_category === filter);
+  }
+
+  const benchSyms = Z_FILTER_BENCH[filter] || [];
+  const benchMap  = {};
+  (zChartData.benchmarks || []).forEach(b => { benchMap[b.symbol] = b; });
+  const benchPts  = benchSyms.map(sym => benchMap[sym]).filter(b => b && b.zscore !== null);
+
+  funds.sort((a, b) => a.label.localeCompare(b.label));
+
+  const labels = [];
+  const fundPoints = [];
+  funds.forEach((f) => {
+    labels.push(f.label);
+    fundPoints.push({ x: labels.length - 1, y: f.zscore, _meta: f });
+  });
+
+  const benchPoints = [];
+  benchPts.forEach(b => {
+    labels.push(b.symbol);
+    benchPoints.push({
+      x: labels.length - 1, y: b.zscore,
+      _meta: { symbol: b.symbol, label: b.symbol, name: b.name, zscore: b.zscore, isBench: true },
+    });
+  });
+
+  const trailOn = zTrailMode !== 'off';
+  const currentRadius = trailOn ? 5 : 7;
+  const currentHoverRadius = trailOn ? 7 : 9;
+  const benchRadius = trailOn ? 7 : 9;
+  const benchHoverRadius = trailOn ? 9 : 11;
+
+  const catDatasets = {};
+  fundPoints.forEach(pt => {
+    const cat = pt._meta.chart_category || 'alternative';
+    if (!catDatasets[cat]) {
+      catDatasets[cat] = {
+        label: cat, data: [],
+        backgroundColor: Z_CAT_COLORS[cat] || '#6b7280',
+        borderColor: '#ffffff', borderWidth: 1.5,
+        pointRadius: currentRadius, pointHoverRadius: currentHoverRadius,
+        pointStyle: 'circle', showLine: false,
+        datalabels: {
+          display: true,
+          formatter: (v, ctx) => ctx.dataset.data[ctx.dataIndex]._meta.label,
+          color: '#16211c', font: { size: 10, weight: '600' },
+          anchor: 'end', align: 'top', offset: 4,
+        },
+      };
+    }
+    catDatasets[cat].data.push(pt);
+  });
+
+  const datasets = [];
+
+  if (trailOn) {
+    fundPoints.forEach(pt => {
+      const cat = pt._meta.chart_category || 'alternative';
+      const color = Z_CAT_COLORS[cat] || '#6b7280';
+      const trail = _trailPointsFor(pt._meta.symbol, pt.x, pt._meta);
+      if (trail.length < 2) return;
+      datasets.push({
+        label: pt._meta.symbol + ' trail', data: trail, showLine: true,
+        borderColor: color + '55', borderWidth: 1.5, backgroundColor: color + '77',
+        pointRadius: 2.5, pointHoverRadius: 4, pointStyle: 'circle', pointBorderWidth: 0,
+        datalabels: { display: false },
+      });
+    });
+    benchPoints.forEach(pt => {
+      const trail = _trailPointsFor(pt._meta.label, pt.x, pt._meta);
+      if (trail.length < 2) return;
+      datasets.push({
+        label: pt._meta.label + ' trail', data: trail, showLine: true,
+        borderColor: '#dc262655', borderWidth: 1.5, backgroundColor: '#dc262677',
+        pointRadius: 2.5, pointHoverRadius: 4, pointStyle: 'circle', pointBorderWidth: 0,
+        datalabels: { display: false },
+      });
+    });
+  }
+
+  Object.values(catDatasets).forEach(ds => datasets.push(ds));
+
+  if (benchPoints.length > 0) {
+    datasets.push({
+      label: 'Benchmarks', data: benchPoints,
+      backgroundColor: '#dc2626', borderColor: '#7f1d1d', borderWidth: 1.5,
+      pointRadius: benchRadius, pointHoverRadius: benchHoverRadius,
+      pointStyle: 'triangle', showLine: false,
+      datalabels: {
+        display: true,
+        formatter: (v, ctx) => ctx.dataset.data[ctx.dataIndex]._meta.label,
+        color: '#7f1d1d', font: { size: 11, weight: '700' },
+        anchor: 'end', align: 'top', offset: 6,
+      },
+    });
+  }
+
+  let yMin = -3, yMax = 3;
+  const allPointsForBounds = [...fundPoints, ...benchPoints];
+  if (trailOn) {
+    Object.values(zChartData.weekly_history || {}).forEach(function(hist) {
+      (hist || []).slice(-13).forEach(function(pt) { allPointsForBounds.push({ x: 0, y: pt.zscore }); });
+    });
+  }
+  allPointsForBounds.forEach(p => {
+    if (p.y < yMin) yMin = Math.floor(p.y - 0.3);
+    if (p.y > yMax) yMax = Math.ceil(p.y + 0.3);
+  });
+
+  const bandsPlugin = {
+    id: 'obosBands',
+    beforeDraw(chart) {
+      const { ctx, chartArea, scales } = chart;
+      if (!chartArea) return;
+      const yScale = scales.y;
+      const yOB2 = yScale.getPixelForValue(2);
+      const yOS2 = yScale.getPixelForValue(-2);
+      ctx.fillStyle = 'rgba(239, 68, 68, 0.10)';
+      ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, yOB2 - chartArea.top);
+      ctx.fillStyle = 'rgba(34, 197, 94, 0.10)';
+      ctx.fillRect(chartArea.left, yOS2, chartArea.right - chartArea.left, chartArea.bottom - yOS2);
+      ctx.save();
+      ctx.setLineDash([4,4]);
+      ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+      ctx.lineWidth = 1;
+      const y0 = yScale.getPixelForValue(0);
+      ctx.beginPath(); ctx.moveTo(chartArea.left, y0); ctx.lineTo(chartArea.right, y0); ctx.stroke();
+      ctx.restore();
+      ctx.save();
+      ctx.font = 'bold 10px system-ui';
+      ctx.fillStyle = 'rgba(220, 38, 38, 0.55)';
+      ctx.textAlign = 'left';
+      ctx.fillText('OVERBOUGHT (z > +2)', chartArea.left + 6, yOB2 - 4);
+      ctx.fillStyle = 'rgba(22, 163, 74, 0.55)';
+      ctx.fillText('OVERSOLD (z < −2)', chartArea.left + 6, yOS2 + 14);
+      ctx.restore();
+    }
+  };
+
+  if (window.ChartDataLabels && !window._zChartRegistered) {
+    Chart.register(window.ChartDataLabels);
+    window._zChartRegistered = true;
+  }
+
+  if (zChartInstance) { zChartInstance.destroy(); }
+
+  const canvas = document.getElementById('zscoreChart');
+  zChartInstance = new Chart(canvas.getContext('2d'), {
+    type: 'scatter',
+    data: { labels: labels, datasets: datasets },
+    plugins: [bandsPlugin],
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 300 },
+      layout: { padding: { top: 20, right: 30, bottom: 30, left: 20 } },
+      onClick: handleZChartClick,
+      onHover: function(event, elements) {
+        var canvas = event.native ? event.native.target : event.chart.canvas;
+        var clickable = elements.some(function(el) {
+          var meta = el.element.$context.raw && el.element.$context.raw._meta;
+          return meta && !meta.isTrail;
+        });
+        canvas.style.cursor = clickable ? 'pointer' : 'default';
+      },
+      scales: {
+        x: { type: 'linear', min: -0.5, max: labels.length - 0.5,
+             ticks: { display: false }, grid: { color: 'rgba(0,0,0,0.04)' },
+             border: { color: 'rgba(0,0,0,0.15)' } },
+        y: { min: yMin, max: yMax,
+             ticks: { stepSize: 0.5, color: 'rgba(0,0,0,0.5)', font: { size: 10 }, callback: v => v.toFixed(1) },
+             grid: { color: ctx => ctx.tick && ctx.tick.value === 0 ? 'rgba(0,0,0,0.15)' : 'rgba(0,0,0,0.04)',
+                     lineWidth: ctx => ctx.tick && ctx.tick.value === 0 ? 1.5 : 0.5 },
+             title: { display: true, text: '1-Year Z-Score', color: 'rgba(0,0,0,0.6)', font: { size: 11, weight: '700' } } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0a1420', borderColor: '#475569', borderWidth: 1,
+          titleColor: '#f1f5f9', bodyColor: '#cbd5e1',
+          callbacks: {
+            title: (items) => items[0].raw._meta.label,
+            label: function(ctx) {
+              const m = ctx.raw._meta;
+              const lines = [];
+              if (m.name) lines.push(m.name);
+              lines.push('Z-Score: ' + m.zscore.toFixed(2));
+              if (m.isTrail && m.date) { lines.push('Week of: ' + m.date); }
+              else { lines.push('(click for 8-month price chart)'); }
+              return lines;
+            }
+          }
+        },
+      },
+    },
+  });
+}
+
+// ── Price History Modal ─────────────────────────────────────────────────────
+let priceModalChart = null;
+
+function handleZChartClick(event, elements) {
+  if (!elements || elements.length === 0) return;
+  for (let i = 0; i < elements.length; i++) {
+    const el = elements[i];
+    const raw = el.element.$context.raw;
+    if (!raw || !raw._meta) continue;
+    if (raw._meta.isTrail) continue;
+    const symbol = raw._meta.symbol || raw._meta.label;
+    if (!symbol) continue;
+    openPriceModal(symbol, raw._meta);
+    return;
+  }
+}
+
+function openPriceModal(symbol, meta) {
+  const modal = document.getElementById('price-modal');
+  document.getElementById('pm-ticker').textContent = symbol;
+  document.getElementById('pm-name').textContent   = meta.name || 'Loading…';
+  modal.classList.remove('hidden');
+
+  fetch('/api/price-history/' + encodeURIComponent(symbol))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data && data.error) {
+        document.getElementById('pm-name').textContent = 'Error: ' + data.error;
+        return;
+      }
+      if (data && data.name) { document.getElementById('pm-name').textContent = data.name; }
+      renderPriceModalChart(data);
+    })
+    .catch(function(err) {
+      console.error('Price history fetch failed:', err);
+      document.getElementById('pm-name').textContent = 'Failed to load price history.';
+    });
+}
+
+function renderPriceModalChart(data) {
+  const canvas = document.getElementById('priceModalChart');
+  if (!canvas) return;
+  if (priceModalChart) { priceModalChart.destroy(); priceModalChart = null; }
+
+  const dates  = data.dates  || [];
+  const prices = data.prices || [];
+  const step   = Math.max(1, Math.floor(dates.length / 8));
+
+  priceModalChart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: { labels: dates, datasets: [{
+      label: data.symbol, data: prices,
+      borderColor: '#0f9d70', backgroundColor: 'rgba(15, 157, 112, 0.08)',
+      borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.1, fill: true,
+    }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 200 },
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { ticks: { color: 'rgba(0,0,0,0.55)', font: { size: 10 }, maxRotation: 0,
+                       callback: function(val, idx) { return idx % step === 0 ? dates[idx] : ''; } },
+             grid: { color: 'rgba(0,0,0,0.04)' }, border: { color: 'rgba(0,0,0,0.15)' } },
+        y: { ticks: { color: 'rgba(0,0,0,0.55)', font: { size: 10 }, callback: function(v) { return '$' + v.toFixed(2); } },
+             grid: { color: 'rgba(0,0,0,0.04)' }, border: { color: 'rgba(0,0,0,0.15)' } },
+      },
+      plugins: {
+        legend: { display: false }, datalabels: { display: false },
+        tooltip: {
+          backgroundColor: '#0a1420', borderColor: '#475569', borderWidth: 1,
+          titleColor: '#f1f5f9', bodyColor: '#cbd5e1',
+          callbacks: {
+            title: function(items) { return items[0].label; },
+            label: function(ctx) { return '$' + ctx.parsed.y.toFixed(2); },
+          },
+        },
+      },
+    },
+  });
+}
+
+function closePriceModal(event) {
+  if (event && event.target && event.target.id !== 'price-modal' && event.type !== undefined && !event.currentTarget) {
+    return;
+  }
+  const modal = document.getElementById('price-modal');
+  if (modal) modal.classList.add('hidden');
+  if (priceModalChart) { priceModalChart.destroy(); priceModalChart = null; }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var modal = document.getElementById('price-modal');
+    if (modal && !modal.classList.contains('hidden')) closePriceModal();
+  }
+});
 </script>
 </body>
 </html>
