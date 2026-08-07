@@ -12,6 +12,7 @@ import pandas as pd
 import threading
 import time
 import json, os
+import yfinance as yf
 from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
 
@@ -25,10 +26,34 @@ REDIS_URL     = os.environ.get("UPSTASH_REDIS_REST_URL", "")
 REDIS_TOKEN   = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "")
 REDIS_KEY_MF  = "simplify_dashboard_cache"
 REDIS_KEY_PRG = "simplify_dashboard_progress"
+REDIS_KEY_HIST = "simplify_weekly_history_v1"
+
+# ── Z-Score chart benchmarks ──────────────────────────────────────────────────
+# These get their Z-scores computed alongside fund data and displayed as
+# reference markers on the Z-Score Chart tab.
+BENCHMARKS = [
+    {"symbol": "SPY", "name": "S&P 500 ETF",          "role": "equity"},
+    {"symbol": "VGK", "name": "FTSE Europe ETF",       "role": "equity"},
+    {"symbol": "IEF", "name": "7-10 Yr Treasury ETF",  "role": "fixed-income"},
+    {"symbol": "DBC", "name": "Broad Commodity ETF",   "role": "alternative"},
+]
+
+
+def classify_fund(fund):
+    """
+    Return chart-filter category for a fund. For the Simplify lineup this is
+    just the same 4-class taxonomy used on the main table (equity,
+    equity-income, fixed-income, alternative) so the Z-Score Chart filter
+    matches the category chips/colors the user already sees.
+    """
+    return (fund.get("category") or "alternative").lower()
 
 cache = {
     "data": {}, "ranked": [], "last_updated": "Loading...",
     "phase": 0, "progress": "Starting...", "error": None,
+    "benchmarks": {},
+    "weekly_history": {},   # { "SBAR": [{date, zscore}, ...], "SPY": [...] }
+    "history_status": "unknown",  # unknown | seeding | ready | error
 }
 _lock    = threading.Lock()
 _started = False
@@ -110,9 +135,36 @@ def save_to_redis():
         "data":         cache["data"],
         "last_updated": cache["last_updated"],
         "phase":        cache["phase"],
+        "benchmarks":   cache.get("benchmarks", {}),
     }
     ok = redis_set(REDIS_KEY_MF, payload)
     print(f"  Redis save: {'OK' if ok else 'FAILED'} ({len(cache['data'])} funds)")
+
+
+def save_history_to_redis():
+    """Save weekly Z-score history to a separate Redis key."""
+    payload = {
+        "history":      cache.get("weekly_history", {}),
+        "status":       cache.get("history_status", "unknown"),
+        "last_updated": cache.get("last_updated", "-"),
+    }
+    ok = redis_set(REDIS_KEY_HIST, payload)
+    print(f"  Redis history save: {'OK' if ok else 'FAILED'} "
+          f"({len(cache.get('weekly_history', {}))} symbols)")
+
+
+def load_history_from_redis():
+    """Restore weekly Z-score history from Redis. Returns True if found."""
+    payload = redis_get(REDIS_KEY_HIST)
+    if not payload:
+        print("  No Redis weekly history found.")
+        return False
+    cache["weekly_history"] = payload.get("history", {})
+    cache["history_status"] = payload.get("status", "unknown")
+    n = len(cache["weekly_history"])
+    print(f"  Redis restored weekly history for {n} symbols "
+          f"(status={cache['history_status']}).")
+    return n > 0
 
 
 def load_from_redis():
@@ -125,6 +177,19 @@ def load_from_redis():
     cache["data"]         = payload.get("data", {})
     cache["last_updated"] = payload.get("last_updated", "-")
     cache["phase"]        = payload.get("phase", 0)
+    cache["benchmarks"]   = payload.get("benchmarks", {})
+
+    # Backfill chart_category on funds cached before the Z-Score chart existed
+    try:
+        funds_lookup = {f["symbol"]: f for f in load_funds()}
+    except Exception:
+        funds_lookup = {}
+    for sym, row in cache["data"].items():
+        if "chart_category" not in row:
+            fund_def = funds_lookup.get(sym, {"symbol": sym, "category": row.get("category", "")})
+            row["chart_category"] = classify_fund(fund_def)
+
+    load_history_from_redis()
     rebuild_ranked()
     n = len(cache["data"])
     print(f"  Redis restored {n} funds (phase={cache['phase']}).")
@@ -209,6 +274,37 @@ def zscore_1yr(closes):
     if std == 0:
         return None
     return round((c.iloc[-1] - c.mean()) / std, 2)
+
+
+def zscore_1yr_ending(closes, end_date):
+    """Compute Z-score using the 1-year window ending on `end_date`.
+
+    Same math as zscore_1yr, but for a specific historical date instead of
+    the most recent close. Needed for weekly trail snapshots.
+    """
+    if not isinstance(end_date, pd.Timestamp):
+        end_date = pd.Timestamp(end_date)
+    up_to = closes[closes.index <= end_date].dropna()
+    if len(up_to) < 20:
+        return None
+    cutoff = up_to.index[-1] - pd.Timedelta(days=365)
+    c = up_to[up_to.index >= cutoff]
+    if len(c) < 20:
+        return None
+    std = c.std()
+    if std == 0:
+        return None
+    return round((c.iloc[-1] - c.mean()) / std, 2)
+
+
+def fridays_back(n):
+    """Return list of the last `n` Friday dates (most recent last), excluding today."""
+    today = pd.Timestamp(date.today())
+    days_since_fri = (today.weekday() - 4) % 7
+    if days_since_fri == 0:
+        days_since_fri = 7
+    most_recent_fri = today - pd.Timedelta(days=days_since_fri)
+    return [most_recent_fri - pd.Timedelta(weeks=i) for i in range(n - 1, -1, -1)]
 
 
 def sma_flag(closes, window):
@@ -318,6 +414,8 @@ def run_update():
     with _lock:
         cache["phase"] = 1
         cache["error"] = None
+        if not cache.get("weekly_history"):
+            cache["history_status"] = "seeding"
 
     time.sleep(10)
 
@@ -388,11 +486,19 @@ def run_update():
                 lo, hi, last_px, bar_pct = price_bar_data(closes)
                 vol_arrow, vol_change = volume_flow(df)
 
+                # ── Weekly history: 13 Friday snapshots (free — reuses `closes`)
+                fund_history = []
+                for fri in fridays_back(13):
+                    fri_z = zscore_1yr_ending(closes, fri)
+                    if fri_z is not None:
+                        fund_history.append({"date": fri.strftime("%Y-%m-%d"), "zscore": fri_z})
+
                 row = {
                     "symbol":        ticker,
                     "name":          name,
                     "type":          ftype,
                     "category":      category,
+                    "chart_category": classify_fund(fund),
                     "morningstar_url": ms_url,
                     "exp_ratio":     fund.get("exp_ratio", None),
                     "ttm_yield":     ttm,
@@ -415,6 +521,7 @@ def run_update():
 
                 with _lock:
                     cache["data"][ticker] = row
+                    cache["weekly_history"][ticker] = fund_history
                     rebuild_ranked()
                     cache["last_updated"] = datetime.now(CT).strftime("%-m/%-d/%y %H:%M CT")
 
@@ -427,6 +534,44 @@ def run_update():
                 print(f"    ERR {ticker}: {e}")
 
             time.sleep(3)
+
+        # ── Benchmarks for Z-Score Chart tab ─────────────────────────────────
+        with _lock:
+            cache["progress"] = "Fetching benchmark Z-scores..."
+        print("  Fetching benchmark tickers for Z-Score Chart...")
+        bench_out = {}
+        for bench in BENCHMARKS:
+            bsym = bench["symbol"]
+            try:
+                bdf = tiingo_history(bsym, years=2)
+                if bdf is None or bdf.empty:
+                    print(f"    {bsym}: no data")
+                    continue
+                bcloses = bdf["adjClose"].dropna()
+                if len(bcloses) < 60:
+                    print(f"    {bsym}: insufficient history")
+                    continue
+                bzsc = zscore_1yr(bcloses)
+                bench_out[bsym] = {
+                    "symbol": bsym, "name": bench["name"],
+                    "role": bench["role"], "zscore": bzsc,
+                }
+                bench_history = []
+                for fri in fridays_back(13):
+                    fri_z = zscore_1yr_ending(bcloses, fri)
+                    if fri_z is not None:
+                        bench_history.append({"date": fri.strftime("%Y-%m-%d"), "zscore": fri_z})
+                with _lock:
+                    cache["weekly_history"][bsym] = bench_history
+                print(f"    {bsym}: z={bzsc}  (history: {len(bench_history)} weeks)")
+            except Exception as e:
+                print(f"    {bsym} ERR: {e}")
+            time.sleep(3)
+
+        with _lock:
+            cache["benchmarks"] = bench_out
+            cache["history_status"] = "ready"
+            save_history_to_redis()
 
         with _lock:
             cache["phase"]        = 4
@@ -518,10 +663,12 @@ def refresh():
     """Force a full fresh download - use once daily after market close."""
     redis_del(REDIS_KEY_MF)
     redis_del(REDIS_KEY_PRG)
+    redis_del(REDIS_KEY_HIST)
     with _lock:
-        cache["data"]   = {}
-        cache["ranked"] = []
-        cache["phase"]  = 0
+        cache["data"]           = {}
+        cache["ranked"]         = []
+        cache["phase"]          = 0
+        cache["weekly_history"] = {}
     trigger_update()
     return jsonify({"status": "full refresh started - check /status for progress"})
 
@@ -543,6 +690,91 @@ def status():
 def api_data():
     with _lock:
         return jsonify(cache["ranked"])
+
+
+@app.route("/api/zscores")
+def api_zscores():
+    """Data for the Z-Score Chart tab: funds + benchmarks + weekly history."""
+    with _lock:
+        funds_out = []
+        for row in cache["ranked"]:
+            if row.get("zscore") is None:
+                continue
+            funds_out.append({
+                "symbol":         row.get("symbol"),
+                "name":           row.get("name"),
+                "label":          row.get("symbol"),
+                "chart_category": row.get("chart_category") or "alternative",
+                "category":       row.get("category"),
+                "zscore":         row.get("zscore"),
+            })
+        benchmarks = list(cache.get("benchmarks", {}).values())
+        return jsonify({
+            "funds":          funds_out,
+            "benchmarks":     benchmarks,
+            "weekly_history": cache.get("weekly_history", {}),
+            "history_status": cache.get("history_status", "unknown"),
+            "last_updated":   cache["last_updated"],
+        })
+
+
+@app.route("/api/price-history/<symbol>")
+def api_price_history(symbol):
+    """Return ~8 months of daily prices for the given symbol.
+
+    Serves the modal chart in the Z-Score view. Fund tickers and benchmark
+    ETFs (SPY/VGK/IEF/DBC) are both supported.
+    Data source: yFinance. Cache: Redis key with 1-hour TTL.
+    """
+    symbol = symbol.upper().strip()
+    if not symbol.isalnum() or len(symbol) > 6:
+        return jsonify({"error": "invalid symbol"}), 400
+
+    cache_key = f"simplify_price_hist_{symbol}"
+
+    cached = redis_get(cache_key)
+    if cached:
+        return jsonify(cached)
+
+    try:
+        end_date   = date.today() + timedelta(days=1)
+        start_date = end_date - timedelta(days=260)
+        df = yf.download(
+            symbol,
+            start=start_date.strftime("%Y-%m-%d"),
+            end=end_date.strftime("%Y-%m-%d"),
+            progress=False,
+            auto_adjust=True,
+            threads=False,
+        )
+        if df is None or df.empty:
+            return jsonify({"error": "no data returned from yFinance"}), 404
+
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
+
+        closes = df["Close"].dropna()
+        if len(closes) < 5:
+            return jsonify({"error": "insufficient price history"}), 404
+
+        with _lock:
+            row   = cache["data"].get(symbol) or {}
+            bench = cache.get("benchmarks", {}).get(symbol) or {}
+        name = row.get("name") or bench.get("name") or symbol
+
+        result = {
+            "symbol": symbol,
+            "name":   name,
+            "dates":  [d.strftime("%Y-%m-%d") for d in closes.index],
+            "prices": [round(float(v), 2) for v in closes.values],
+        }
+
+        redis_set(cache_key, result, ex_seconds=3600)
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"  price-history error for {symbol}: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":
