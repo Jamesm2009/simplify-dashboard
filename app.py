@@ -502,6 +502,7 @@ def run_update():
                     "morningstar_url": ms_url,
                     "exp_ratio":     fund.get("exp_ratio", None),
                     "ttm_yield":     ttm,
+                    "description":   fund.get("description", None),
                     "sparkline":     make_sparkline(closes),
                     "1D":   fmt(d1), "1W": fmt(w1), "1M": fmt(m1),
                     "3M":   fmt(m3), "6M": fmt(m6), "YTD": fmt(ytd), "1Y": fmt(y1),
