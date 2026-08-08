@@ -61,7 +61,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; zoom: 0.9; }
 
 header {
   background: var(--header);
@@ -132,7 +132,8 @@ td { padding: 3px 3px; white-space: nowrap; vertical-align: middle; }
 td.rank  { font-weight: 800; font-size: 13px; color: var(--gold); text-align: center; width: 30px; }
 td.sym a { font-weight: 700; font-size: 13px; font-family: 'Courier New', monospace; color: var(--accent); text-decoration: none; }
 td.sym a:hover { text-decoration: underline; }
-td.fname { max-width: 170px; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+td.fname { max-width: 170px; overflow: hidden; text-overflow: ellipsis; font-weight: 500; cursor: default; }
+td.fname.has-desc { border-bottom: 1px dotted var(--muted); cursor: help; }
 td.ftype { max-width: 140px; overflow: hidden; text-overflow: ellipsis; font-weight: 500; font-size: 12px; }
 td.spark { width:110px; padding: 3px 3px; }
 td.num   { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; min-width: 20px; }
@@ -446,6 +447,20 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px
   height: min(52vh, 420px); min-height: 280px;
 }
 .price-modal-note { font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+
+/* ── Fund description tooltip ──────────────────────────────────────────
+   Rendered as its own fixed-position element (a sibling of the table, not
+   nested inside it) and positioned in JS via getBoundingClientRect(), so
+   it's never clipped by td.fname's or <table>'s overflow:hidden. */
+.fund-tooltip {
+  position: fixed; display: none;
+  max-width: 280px;
+  background: #000000; color: #F8F6EE;
+  font-size: 11.5px; font-weight: 400; line-height: 1.45;
+  padding: 9px 12px; border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  z-index: 2000; pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -633,7 +648,7 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px
   <tr class="cat-{{ f.category }}">
     <td class="rank">{{ f.rank if f.rank else '—' }}</td>
     <td class="sym"><a href="{{ f.morningstar_url }}" target="_blank">{{ f.symbol }}</a></td>
-    <td class="fname">{{ f.name }}</td>
+    <td class="fname{% if f.description %} has-desc{% endif %}"{% if f.description %} data-desc="{{ f.description }}"{% endif %}>{{ f.name }}</td>
     <td class="spark">{{ f.sparkline | safe }}</td>
 
     <!-- Category (hidden by default) -->
@@ -783,6 +798,9 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 11px
   </div>
 </div>
 
+<!-- ── Fund Description Tooltip (single reusable element) ── -->
+<div id="fund-tooltip" class="fund-tooltip"></div>
+
 <script>
 let sortCol = 0, sortAsc = true;
 function sortTable(col) {
@@ -830,6 +848,42 @@ function cellVal(cell) {
 function toggleCol(cls) {
   document.querySelectorAll("."+cls).forEach(el => el.classList.toggle("col-hidden"));
 }
+
+// ── Fund description tooltip ────────────────────────────────────────────────
+(function() {
+  const tip = document.getElementById('fund-tooltip');
+  const GAP = 8;
+
+  function positionTooltip(cell) {
+    const r = cell.getBoundingClientRect();
+    tip.style.display = 'block'; // must be visible to measure offsetWidth/Height
+    let left = r.left;
+    let top  = r.bottom + GAP;
+
+    const maxLeft = window.innerWidth - tip.offsetWidth - GAP;
+    if (left > maxLeft) left = Math.max(GAP, maxLeft);
+
+    if (top + tip.offsetHeight + GAP > window.innerHeight) {
+      top = r.top - tip.offsetHeight - GAP; // flip above the cell if it'd run off the bottom
+    }
+    tip.style.left = left + 'px';
+    tip.style.top  = top + 'px';
+  }
+
+  document.addEventListener('mouseover', function(e) {
+    const cell = e.target.closest('td.has-desc');
+    if (!cell) return;
+    tip.textContent = cell.dataset.desc;
+    positionTooltip(cell);
+  });
+  document.addEventListener('mouseout', function(e) {
+    const cell = e.target.closest('td.has-desc');
+    if (!cell) return;
+    if (cell.contains(e.relatedTarget)) return;
+    tip.style.display = 'none';
+  });
+  document.addEventListener('scroll', function() { tip.style.display = 'none'; }, true);
+})();
 
 // ── Tab switching ───────────────────────────────────────────────────────────
 let activeTab = 'table';
