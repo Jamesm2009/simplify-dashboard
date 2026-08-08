@@ -1,0 +1,380 @@
+[
+  {
+    "symbol": "SBAR",
+    "name": "Barrier Income ETF",
+    "category": "equity-income",
+    "type": "Barrier Income ETF",
+    "exp_ratio": 0.75,
+    "ttm_yield": 5.63,
+    "description": "Sells \"barrier\" put options with a pre-set 30% downside threshold on a mix of US large-cap, small-cap, and growth stocks to generate high monthly income, while also holding short-duration Treasuries — the loss point is defined upfront rather than open-ended like a typical options-income fund."
+  },
+  {
+    "symbol": "CTA",
+    "name": "Managed Futures Strategy ETF",
+    "category": "alternative",
+    "type": "Managed Futures Strategy ETF",
+    "exp_ratio": 0.75,
+    "ttm_yield": 5.39,
+    "description": "Actively managed trend-following strategy that goes long or short across equity, interest-rate, currency, and commodity futures — designed to post positive returns independent of stock market direction, including during equity sell-offs."
+  },
+  {
+    "symbol": "AGGH",
+    "name": "Aggregate Bond ETF",
+    "category": "fixed-income",
+    "type": "Aggregate Bond ETF",
+    "exp_ratio": 0.55,
+    "ttm_yield": 7.6,
+    "description": "Core investment-grade bond exposure similar in risk to the broad U.S. Aggregate Bond index, enhanced with options-selling and yield-curve positioning to target higher income and total return than a plain bond index fund."
+  },
+  {
+    "symbol": "FOXY",
+    "name": "Currency Strategy ETF",
+    "category": "alternative",
+    "type": "Currency Strategy ETF",
+    "exp_ratio": 0.81,
+    "ttm_yield": 8.79,
+    "description": "Actively trades foreign currencies: a \"carry\" strategy going long high-interest-rate emerging-market currencies and short low-interest-rate ones, paired with a mean-reversion strategy on G10 currencies — aiming for returns largely uncorrelated to stocks and bonds."
+  },
+  {
+    "symbol": "XV",
+    "name": "Target 15 Distribution ETF",
+    "category": "equity-income",
+    "type": "Target 15 Distribution ETF",
+    "exp_ratio": 0.75,
+    "ttm_yield": 4.16,
+    "description": "Sells barrier put options on major equity indices, adjusting the barrier level as needed to pursue an aspirational 15% annualized monthly distribution rate — a more aggressive, flexible version of Simplify's barrier-income approach, paired with US government securities for stability."
+  },
+  {
+    "symbol": "HEQT",
+    "name": "Hedged Equity ETF",
+    "category": "equity",
+    "type": "Hedged Equity ETF",
+    "exp_ratio": 0.53,
+    "ttm_yield": 1.19,
+    "description": "Holds full S&P 500 exposure while layering a rolling \"put-spread collar\" — buying downside protection and selling some upside — across three staggered 3-month cycles, aiming to smooth out volatility and cap losses in exchange for limiting gains during rallies."
+  },
+  {
+    "symbol": "SBIL",
+    "name": "Government Money Market ETF",
+    "category": "fixed-income",
+    "type": "Government Money Market ETF",
+    "exp_ratio": 0.15,
+    "ttm_yield": 3.87,
+    "description": "A true government money-market fund in ETF form: holds cash, short-term U.S. government securities, and repurchase agreements for stability and current income. Unlike most money-market funds, its share price floats slightly rather than staying pinned at a fixed value."
+  },
+  {
+    "symbol": "MTBA",
+    "name": "MBS ETF",
+    "category": "fixed-income",
+    "type": "MBS ETF",
+    "exp_ratio": 0.25,
+    "ttm_yield": 5.54,
+    "description": "Invests in newer, higher-coupon agency mortgage-backed securities (issued by Ginnie Mae, Fannie Mae, and Freddie Mac) via TBA forward contracts, targeting better yield than a standard MBS index fund with minimal added credit risk versus Treasuries."
+  },
+  {
+    "symbol": "TUA",
+    "name": " Short Term Treasury Futures Strategy ETF",
+    "category": "fixed-income",
+    "type": "Short Term Treasury Futures Strategy ETF",
+    "exp_ratio": 0.25,
+    "ttm_yield": 3.12,
+    "description": "Uses leveraged 2-year Treasury futures to replicate the interest-rate sensitivity (duration) of the 7-10 year Treasury index while tying up less capital — a capital-efficient way to add intermediate-duration bond exposure, or a building block for risk-parity-style portfolios."
+  },
+  {
+    "symbol": "SVOL",
+    "name": "Volatility Premium ETF",
+    "category": "alternative",
+    "type": "Volatility Premium ETF",
+    "exp_ratio": 0.66,
+    "ttm_yield": 13.29,
+    "description": "Holds a modest short position (roughly -0.2x to -0.3x) in VIX futures to harvest the volatility risk premium as income, while buying VIX call options as a hedge against sudden volatility spikes — aims to profit in calm markets while limiting damage during shocks."
+  },
+  {
+    "symbol": "BUCK",
+    "name": "Treasury Option Income ETF",
+    "category": "fixed-income",
+    "type": "Treasury Option Income ETF",
+    "exp_ratio": 0.35,
+    "ttm_yield": 7.21,
+    "description": "Holds short-duration (1-year or less) U.S. Treasury securities for stable interest income, layered with an options-writing strategy on equity and bond ETFs for extra yield — targets money-market-like stability without being an actual money market fund."
+  },
+  {
+    "symbol": "PINK",
+    "name": "Health Care ETF",
+    "category": "equity",
+    "type": "Health Care ETF",
+    "exp_ratio": 0.51,
+    "ttm_yield": 0.64,
+    "description": "Actively managed portfolio of roughly 50–100 U.S. healthcare and biotech stocks seeking long-term growth — and donates 100% of Simplify's net management-fee profits from the fund to the Susan G. Komen breast cancer foundation."
+  },
+  {
+    "symbol": "CDX",
+    "name": "High Yield ETF",
+    "category": "fixed-income",
+    "type": "High Yield ETF",
+    "exp_ratio": 0.5,
+    "ttm_yield": null,
+    "description": "Core high-yield (\"junk\") bond exposure paired with a flexible credit hedge — primarily a \"Quality-minus-Junk\" factor position, supplemented opportunistically with credit default swaps or equity puts — designed to capture high-yield income while cushioning against a sudden widening in credit spreads."
+  },
+  {
+    "symbol": "SPUC",
+    "name": "US Equity Income ETF",
+    "category": "equity-income",
+    "type": "US Equity Income ETF",
+    "exp_ratio": 0.53,
+    "ttm_yield": 8.31,
+    "description": "Combines U.S. large-cap equity exposure with both long and short call options (rather than a standard covered call) to generate tax-efficient monthly income while retaining more upside participation than typical covered-call income funds."
+  },
+  {
+    "symbol": "PFIX",
+    "name": "Interest Rate Hedge ETF",
+    "category": "alternative",
+    "type": "Interest Rate Hedge ETF",
+    "exp_ratio": 0.5,
+    "ttm_yield": 3.11,
+    "description": "Holds long-dated options on 20-year Treasury bonds (via interest-rate swaptions) designed to rise sharply in value when long-term interest rates spike or bond-market volatility increases — a direct hedge against rising rates rather than a bet on falling ones."
+  },
+  {
+    "symbol": "KNRG",
+    "name": "Kayne Anderson Energy & Infrastructure Credit ETF",
+    "category": "fixed-income",
+    "type": "Kayne Anderson Energy and Infrastructure Credit ETF",
+    "exp_ratio": 0.76,
+    "ttm_yield": 6.93,
+    "description": "Actively managed by energy-investing specialist Kayne Anderson, this fund buys bonds, loans, and other credit instruments issued by energy and infrastructure companies for higher income than a typical high-yield bond fund at comparatively higher credit quality."
+  },
+  {
+    "symbol": "CTAP",
+    "name": "US Equity PLUS Managed Futures Strategy ETF",
+    "category": "equity",
+    "type": "US Equity PLUS Managed Futures Strategy ETF",
+    "exp_ratio": 0.28,
+    "ttm_yield": null,
+    "description": "Delivers 100% notional exposure to both U.S. large-cap stocks and a systematic long/short managed-futures strategy (via a swap on Simplify's own CTA fund) from a single investment — a capital-efficient way to add managed-futures diversification without cutting your existing stock allocation."
+  },
+  {
+    "symbol": "SPYC",
+    "name": "US Equity PLUS Convexity ETF",
+    "category": "equity",
+    "type": "US Equity PLUS Convexity ETF",
+    "exp_ratio": 0.53,
+    "ttm_yield": 0.89,
+    "description": "Core low-cost S&P 500 exposure plus a modest options overlay (buying both puts and calls) designed to add extra gains during sharp market moves in either direction — a small, ongoing \"insurance premium\" cost in calm markets in exchange for a boost during volatility spikes."
+  },
+  {
+    "symbol": "SPD",
+    "name": "US Equity PLUS Downside Convexity ETF",
+    "category": "equity",
+    "type": "US Equity PLUS Downside Convexity ETF",
+    "exp_ratio": 0.53,
+    "ttm_yield": 0.97,
+    "description": "Core low-cost S&P 500 exposure plus a modest put-option overlay designed specifically to cushion losses during sharp market sell-offs, without capping upside participation in rallies — essentially downside insurance layered onto a standard large-cap holding."
+  },
+  {
+    "symbol": "CCOM",
+    "name": "Chinese Commodities Strategy No K-1 ETF",
+    "category": "alternative",
+    "type": "Chinese Commodities Strategy No K-1 ETF",
+    "exp_ratio": 0.99,
+    "ttm_yield": null,
+    "description": "Systematic long/short strategy trading commodity futures on major Chinese exchanges (Shanghai, Dalian, Zhengzhou) — markets largely inaccessible to U.S. investors directly — via a structure that avoids issuing the K-1 tax form typical of commodity funds."
+  },
+  {
+    "symbol": "HARD",
+    "name": "Commodities Strategy No K-1 ETF",
+    "category": "alternative",
+    "type": "Commodities Strategy No K-1 ETF",
+    "exp_ratio": 0.78,
+    "ttm_yield": 3.7,
+    "description": "Systematic long/short strategy trading global commodity futures (energy, metals, agriculture) built by the same managers as CCOM, but focused on broad international commodity markets rather than China-specific ones — also structured to avoid issuing a K-1 tax form."
+  },
+  {
+    "symbol": "SURI",
+    "name": "Propel Opportunities ETF",
+    "category": "equity",
+    "type": "Propel Opportunities ETF",
+    "exp_ratio": 2.82,
+    "ttm_yield": 15.01,
+    "description": "Actively managed portfolio of biotech, pharma, health-tech, and life-science companies that sub-advisor Propel believes are overlooked by mainstream investors — a higher-conviction, higher-cost stock-picking approach within a single sector rather than a broad healthcare index."
+  },
+  {
+    "symbol": "HIGH",
+    "name": "Enhanced Income ETF",
+    "category": "equity-income",
+    "type": "Enhanced Income ETF",
+    "exp_ratio": 0.5,
+    "ttm_yield": 6.87,
+    "description": "Holds short-term Treasuries for baseline income, then sells short-dated put and call spreads on global equity indices to add extra monthly income — designed as an alternative to high-yield bonds with less exposure to credit and interest-rate risk."
+  },
+  {
+    "symbol": "TYA",
+    "name": "Intermediate Term Treasury Futures Strategy ETF",
+    "category": "fixed-income",
+    "type": "Intermediate Term Treasury Futures Strategy ETF",
+    "exp_ratio": 0.25,
+    "ttm_yield": 3.79,
+    "description": "Uses 10-year Treasury futures to replicate the interest-rate sensitivity (duration) of the longer 20+ year Treasury index while committing less capital — a capital-efficient way to add long-duration bond exposure, particularly useful in risk-parity-style portfolios."
+  },
+  {
+    "symbol": "XXV",
+    "name": "Ancorato Target 25 Distribution ETF",
+    "category": "equity-income",
+    "type": "Ancorato Target 25 Distribution ETF",
+    "exp_ratio": 0.85,
+    "ttm_yield": null,
+    "description": "Sells barrier put options on individual stocks (or baskets of stocks), continually adjusting the barrier level, to pursue an aspirational 25% annualized monthly distribution — Simplify's highest-target, most aggressive fund in its barrier-income lineup, sub-advised by Ancorato Capital."
+  },
+  {
+    "symbol": "NMB",
+    "name": "National Muni Bond ETF",
+    "category": "fixed-income",
+    "type": "National Muni Bond ETF",
+    "exp_ratio": 0.52,
+    "ttm_yield": 5.53,
+    "description": "Actively managed municipal bond portfolio seeking tax-free income from undervalued munis overlooked by passive index funds, layered with an options-selling strategy across equity, fixed-income, and commodity instruments for extra (taxable) yield on top of the tax-free coupon income."
+  },
+  {
+    "symbol": "RFIX",
+    "name": "Bond Bull ETF",
+    "category": "fixed-income",
+    "type": "Bond Bull ETF",
+    "exp_ratio": 0.5,
+    "ttm_yield": 4.38,
+    "description": "The mirror image of Simplify's PFIX: holds long-dated options (a receiver swaption) structured to behave like a call option on long-term Treasury bonds, designed to rise sharply in value when long-term interest rates fall or bond-market volatility spikes."
+  },
+  {
+    "symbol": "SPBC",
+    "name": "US Equity PLUS Bitcoin Strategy ETF",
+    "category": "equity",
+    "type": "US Equity PLUS Bitcoin Strategy ETF",
+    "exp_ratio": 0.54,
+    "ttm_yield": 0.84,
+    "description": "Targets 100% U.S. large-cap equity exposure plus roughly 10% Bitcoin exposure (via Bitcoin ETFs), with the Bitcoin sleeve actively rebalanced to stay near that target — a simpler way to add a modest, capped Bitcoin allocation on top of a core equity holding without managing it yourself."
+  },
+  {
+    "symbol": "GAEM",
+    "name": "Gamma Emerging Market Bond ETF",
+    "category": "fixed-income",
+    "type": "Gamma Emerging Market Bond ETF",
+    "exp_ratio": 0.96,
+    "ttm_yield": 6.38,
+    "description": "Actively managed emerging-market bond fund focused primarily on Latin American issuers, using fundamental economic and political research to select sovereign and corporate debt — aiming for yields comparable to or above U.S. high-yield bonds with added geographic diversification."
+  },
+  {
+    "symbol": "NXTI",
+    "name": "NEXT Intangible Core Index ETF",
+    "category": "equity",
+    "type": "NEXT Intangible Core Index ETF",
+    "exp_ratio": 0.25,
+    "ttm_yield": 0.56,
+    "description": "Passively tracks an index of roughly 200 U.S. companies with high \"intangible capital\" (patents, brand value, software, R&D) relative to their physical book assets — a rules-based tilt toward asset-light, IP-driven businesses rather than a traditional market-cap-weighted index."
+  },
+  {
+    "symbol": "SDMF",
+    "name": "DBi CTA Managed Futures Index ETF",
+    "category": "alternative",
+    "type": "DBi CTA Managed Futures Index ETF",
+    "exp_ratio": 0.35,
+    "ttm_yield": null,
+    "description": "Rules-based index fund replicating the aggregate positioning of the largest managed-futures hedge funds across 10 liquid futures markets (rates, currencies, equities, commodities), rebalanced weekly — a lower-cost, transparent alternative to Simplify's actively managed CTA fund for similar broad managed-futures exposure."
+  },
+  {
+    "symbol": "CRDT",
+    "name": "Opportunistic Income ETF",
+    "category": "fixed-income",
+    "type": "Opportunistic Income ETF",
+    "exp_ratio": 0.99,
+    "ttm_yield": null,
+    "description": "Actively managed, opportunistic credit fund investing across high-yield, investment-grade, and distressed debt, combining macro, quantitative, and fundamental research to find mispriced bonds — closer to a hedge-fund-style credit strategy than a passive bond index fund."
+  },
+  {
+    "symbol": "QIS",
+    "name": "Multi-QIS Alternative ETF",
+    "category": "alternative",
+    "type": "Multi-QIS Alternative ETF",
+    "exp_ratio": 1.21,
+    "ttm_yield": 2.01,
+    "description": "Bundles 10–20 different institutional-grade quantitative trading strategies (across equities, rates, commodities, and currencies, sourced from major investment banks) into one fund, aiming for returns uncorrelated to stocks and bonds — a diversified \"basket of hedge fund strategies\" rather than a single-strategy alternative fund."
+  },
+  {
+    "symbol": "YGLD",
+    "name": "Gold Strategy ETF",
+    "category": "alternative",
+    "type": "Gold Strategy ETF",
+    "exp_ratio": 0.53,
+    "ttm_yield": 20.61,
+    "description": "Combines roughly 150% notional exposure to gold (via futures) with an options-selling strategy across equity, bond, and currency markets — designed to amplify gold's moves while adding income that a plain gold ETF doesn't provide."
+  },
+  {
+    "symbol": "MAXI",
+    "name": "Bitcoin Strategy ETF",
+    "category": "alternative",
+    "type": "Bitcoin Strategy ETF",
+    "exp_ratio": 1.31,
+    "ttm_yield": 54.75,
+    "description": "Combines Bitcoin exposure (roughly 50%–200% of assets, sized by a proprietary technical model, via futures and ETFs rather than holding Bitcoin directly) with an options-selling income strategy — for investors who want a leveraged, income-generating Bitcoin position rather than a plain 1x Bitcoin ETF."
+  },
+  {
+    "symbol": "TESL",
+    "name": "Volt TSLA Revolution ETF",
+    "category": "equity",
+    "type": "Volt TSLA Revolution ETF",
+    "exp_ratio": 0.97,
+    "ttm_yield": 33.14,
+    "description": "Dynamically adjusts exposure to Tesla stock (80%–150%, via stock, options, and swaps) based on a proprietary momentum and AI-driven sentiment algorithm, with an options overlay to manage downside — a single-stock, actively-timed bet rather than a diversified EV or tech fund."
+  },
+  {
+    "symbol": "CAS",
+    "name": "China A Shares PLUS Income ETF",
+    "category": "equity-income",
+    "type": "China A Shares PLUS Income ETF",
+    "exp_ratio": 0.88,
+    "ttm_yield": 37.53,
+    "description": "Gains exposure to mainland China \"A-share\" stocks (normally hard for foreign investors to access) via total return swaps rather than holding the shares directly — a structure designed to avoid capital being locked up if geopolitical tensions restrict direct China holdings — plus an options-selling overlay for extra income."
+  },
+  {
+    "symbol": "LITL",
+    "name": "Piper Sandler US Small-Cap PLUS Income ETF",
+    "category": "equity-income",
+    "type": "Piper Sandler US Small-Cap PLUS Income ETF",
+    "exp_ratio": 0.91,
+    "ttm_yield": 1.92,
+    "description": "Actively managed small-cap U.S. stock portfolio built by sub-advisor Piper Sandler's macro-driven factor model (weighting value, profitability, and other factors based on where we are in the economic cycle), layered with an options-selling strategy for added monthly income beyond a typical small-cap fund."
+  },
+  {
+    "symbol": "IOPP",
+    "name": "Tara India Opportunities ETF",
+    "category": "equity",
+    "type": "Tara India Opportunities ETF",
+    "exp_ratio": 1.03,
+    "ttm_yield": 0.37,
+    "description": "Actively managed Indian equities portfolio, sub-advised by India specialist System Two Advisors, aiming to outperform the MSCI India Index through active stock selection rather than passively tracking a broad India index."
+  },
+  {
+    "symbol": "DINE",
+    "name": "Tax Aware Diversified Income Strategy ETF",
+    "category": "alternative",
+    "type": "Tax Aware Diversified Income Strategy ETF",
+    "exp_ratio": 0.25,
+    "ttm_yield": null,
+    "description": "A multi-strategy income fund that gains exposure to several of Simplify's other income strategies (bonds, options-selling, equity income, currency income) via swaps, deliberately designed to minimize regular taxable distributions so investors control when they realize income — built for taxable accounts."
+  },
+  {
+    "symbol": "PCR",
+    "name": "VettaFi Private Credit Strategy ETF",
+    "category": "fixed-income",
+    "type": "VettaFi Private Credit Strategy ETF",
+    "exp_ratio": 0.76,
+    "ttm_yield": null,
+    "description": "Tracks an index of business development companies (BDCs) and closed-end funds focused on private credit — yields aimed at beating traditional high-yield bonds — paired with a \"quality-minus-junk\" credit hedge designed to cushion the fund during credit market stress."
+  },
+  {
+    "symbol": "LQ",
+    "name": "Tax Aware Alternatives ETF",
+    "category": "alternative",
+    "type": "Tax Aware Alternatives ETF",
+    "exp_ratio": 0.25,
+    "ttm_yield": null,
+    "description": "A multi-strategy alternatives fund that gains exposure to several of Simplify's other alternative strategies (managed futures, commodities, currencies, hedging) via swaps rather than holding them individually — designed to diversify a traditional stock/bond portfolio with less tax drag than holding each strategy separately."
+  }
+]
